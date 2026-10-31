@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Data Center &amp; SAN Visualisasi Interaktif</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050a14;
+            --panel: #0a1424;
+            --panel2: #0d1b30;
+            --line: #16304f;
+            --cyan: #22d3ee;
+            --orange: #fb923c;
+            --purple: #a78bfa;
+            --green: #4ade80;
+            --red: #ef4444;
+            --yellow: #fbbf24;
+            --tx: #cfe3f5;
+            --mut: #6f8fae
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            margin: 0;
+            height: 100%;
+            background: var(--bg);
+            color: var(--tx);
+            font-family: 'Share Tech Mono', ui-monospace, monospace;
+            font-size: 13px;
+            overflow: hidden
+        }
+
+        header {
+            height: 56px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 0 18px;
+            border-bottom: 1px solid var(--line);
+            background: linear-gradient(#0a1830, #07101e)
+        }
+
+        header h1 {
+            margin: 0;
+            font: 700 24px Rajdhani, sans-serif;
+            letter-spacing: .5px;
+            white-space: nowrap
+        }
+
+        header h1 b {
+            color: var(--cyan)
+        }
+
+        .badge {
+            font-size: 11px;
+            border: 1px solid var(--yellow);
+            color: var(--yellow);
+            padding: 2px 8px;
+            border-radius: 99px;
+            white-space: nowrap
+        }
+
+        .sp {
+            flex: 1
+        }
+
+        .seg {
+            display: flex;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            overflow: hidden
+        }
+
+        .seg button {
+            background: transparent;
+            color: var(--mut);
+            border: 0;
+            padding: 7px 16px;
+            font: 600 14px Rajdhani, sans-serif;
+            cursor: pointer
+        }
+
+        .seg button.on {
+            background: var(--cyan);
+            color: #04101c
+        }
+
+        #clock {
+            color: var(--mut)
+        }
+
+        #app {
+            display: grid;
+            grid-template-columns: 300px 1fr 340px;
+            height: calc(100% - 56px)
+        }
+
+        aside {
+            background: var(--panel);
+            overflow-y: auto;
+            padding: 14px
+        }
+
+        #left {
+            border-right: 1px solid var(--line)
+        }
+
+        #right {
+            border-left: 1px solid var(--line)
+        }
+
+        h3 {
+            margin: 16px 0 8px;
+            font: 700 14px Rajdhani, sans-serif;
+            letter-spacing: 1.5px;
+            color: var(--cyan);
+            text-transform: uppercase
+        }
+
+        h3:first-child {
+            margin-top: 0
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px dashed #12253f
+        }
+
+        .row span:first-child {
+            color: var(--mut)
+        }
+
+        .ok {
+            color: var(--green)
+        }
+
+        .warn {
+            color: var(--yellow)
+        }
+
+        .bad {
+            color: var(--red)
+        }
+
+        .bar {
+            height: 6px;
+            background: #10223a;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 3px
+        }
+
+        .bar i {
+            display: block;
+            height: 100%;
+            background: var(--cyan);
+            transition: width .5s
+        }
+
+        .fl {
+            margin: 7px 0
+        }
+
+        .fl div.h {
+            display: flex;
+            justify-content: space-between
+        }
+
+        button.b {
+            width: 100%;
+            margin: 3px 0;
+            background: #0f2038;
+            color: var(--tx);
+            border: 1px solid var(--line);
+            border-radius: 7px;
+            padding: 7px 10px;
+            font: 13px 'Share Tech Mono';
+            cursor: pointer;
+            text-align: left
+        }
+
+        button.b:hover {
+            border-color: var(--cyan)
+        }
+
+        button.b.active {
+            border-color: var(--red);
+            color: #fecaca;
+            background: #2a1117
+        }
+
+        button.b.pri {
+            border-color: var(--cyan);
+            color: var(--cyan)
+        }
+
+        label.chk {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding: 3px 0;
+            cursor: pointer
+        }
+
+        #alerts {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            max-height: 240px;
+            overflow-y: auto
+        }
+
+        .al {
+            border-left: 3px solid var(--cyan);
+            background: #0b1a2e;
+            padding: 5px 8px;
+            font-size: 12px;
+            line-height: 1.35
+        }
+
+        .al.WARN {
+            border-color: var(--yellow)
+        }
+
+        .al.CRIT {
+            border-color: var(--red);
+            background: #2a1117
+        }
+
+        .al small {
+            color: var(--mut);
+            display: block
+        }
+
+        #stage {
+            position: relative;
+            background: radial-gradient(ellipse at 50% 30%, #0c1c34, #050a14 70%);
+            overflow: hidden
+        }
+
+        #three,
+        #svgWrap {
+            position: absolute;
+            inset: 0
+        }
+
+        #three canvas {
+            display: block;
+            width: 100%;
+            height: 100%
+        }
+
+        #svgWrap {
+            display: none;
+            padding: 10px
+        }
+
+        #svgWrap svg {
+            width: 100%;
+            height: 100%
+        }
+
+        #labels {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden
+        }
+
+        .lbl {
+            position: absolute;
+            left: 0;
+            top: 0;
+            padding: 2px 9px;
+            border: 1px solid var(--line);
+            background: rgba(5, 12, 24, .88);
+            border-radius: 8px;
+            font-size: 11.5px;
+            white-space: nowrap;
+            cursor: pointer;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 6px
+        }
+
+        .lbl i {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block
+        }
+
+        .lbl:hover,
+        .lbl.sel {
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px #22d3ee66
+        }
+
+        .lbl.zone {
+            pointer-events: none;
+            border-style: dashed;
+            color: var(--mut)
+        }
+
+        #camBar {
+            position: absolute;
+            left: 12px;
+            bottom: 12px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap
+        }
+
+        #camBar button {
+            background: rgba(5, 12, 24, .9);
+            color: var(--tx);
+            border: 1px solid var(--line);
+            border-radius: 7px;
+            padding: 6px 11px;
+            font: 12px 'Share Tech Mono';
+            cursor: pointer
+        }
+
+        #camBar button:hover {
+            border-color: var(--cyan)
+        }
+
+        #hint {
+            position: absolute;
+            right: 12px;
+            bottom: 12px;
+            color: var(--mut);
+            font-size: 11px;
+            background: rgba(5, 12, 24, .8);
+            padding: 5px 9px;
+            border-radius: 7px
+        }
+
+        #tour {
+            position: absolute;
+            left: 50%;
+            top: 14px;
+            transform: translateX(-50%);
+            width: min(560px, 92%);
+            background: rgba(8, 18, 34, .96);
+            border: 1px solid var(--cyan);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: none;
+            box-shadow: 0 0 24px #22d3ee33
+        }
+
+        #tour h4 {
+            margin: 0 0 6px;
+            font: 700 17px Rajdhani, sans-serif;
+            color: var(--cyan)
+        }
+
+        #tour p {
+            margin: 0 0 10px;
+            line-height: 1.5
+        }
+
+        #tour .nav {
+            display: flex;
+            gap: 8px;
+            align-items: center
+        }
+
+        #tour .nav button {
+            background: #0f2038;
+            color: var(--tx);
+            border: 1px solid var(--line);
+            border-radius: 7px;
+            padding: 5px 12px;
+            font: 12px 'Share Tech Mono';
+            cursor: pointer
+        }
+
+        #tour .nav span {
+            margin-left: auto;
+            color: var(--mut)
+        }
+
+        .empty {
+            color: var(--mut);
+            text-align: center;
+            margin-top: 60px;
+            line-height: 1.6
+        }
+
+        .empty big {
+            display: block;
+            font-size: 34px;
+            margin-bottom: 6px
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 99px;
+            border: 1px solid;
+            margin-bottom: 8px
+        }
+
+        #right h2 {
+            margin: 0 0 4px;
+            font: 700 22px Rajdhani, sans-serif
+        }
+
+        .kv {
+            margin: 4px 0;
+            color: var(--mut)
+        }
+
+        .kv b {
+            color: var(--tx);
+            font-weight: 400
+        }
+
+        .sec {
+            margin: 14px 0 4px;
+            color: var(--cyan);
+            font: 700 13px Rajdhani, sans-serif;
+            letter-spacing: 1.3px;
+            text-transform: uppercase
+        }
+
+        ul.sp2 {
+            margin: 0;
+            padding-left: 18px;
+            line-height: 1.55
+        }
+
+        .edu {
+            background: #0b1a2e;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 9px 11px;
+            line-height: 1.5
+        }
+
+        .chip {
+            display: inline-block;
+            margin: 2px 3px 2px 0;
+            padding: 3px 9px;
+            border: 1px solid var(--line);
+            border-radius: 99px;
+            cursor: pointer;
+            font-size: 12px;
+            background: #0b1a2e
+        }
+
+        .chip:hover {
+            border-color: var(--cyan)
+        }
+
+        /* 2D */
+        .n rect {
+            fill: #0b1a2e;
+            stroke-width: 1.6;
+            transition: .2s
+        }
+
+        .n {
+            cursor: pointer
+        }
+
+        .n:hover rect,
+        .n.sel rect {
+            filter: drop-shadow(0 0 6px currentColor);
+            stroke-width: 2.6
+        }
+
+        .n.bad rect {
+            stroke: var(--red) !important;
+            fill: #2a1117
+        }
+
+        .n text {
+            fill: var(--tx);
+            font-family: 'Share Tech Mono', monospace;
+            pointer-events: none
+        }
+
+        .lk {
+            fill: none;
+            stroke-width: 2.2;
+            opacity: .8
+        }
+
+        .lk.A {
+            stroke: var(--cyan)
+        }
+
+        .lk.B {
+            stroke: var(--orange)
+        }
+
+        .lk.S {
+            stroke: var(--purple)
+        }
+
+        .lk.down {
+            stroke: var(--red);
+            stroke-dasharray: 5 5;
+            opacity: .7
+        }
+
+        .pk {
+            display: inline
+        }
+
+        .pk.off {
+            display: none
+        }
+
+        .hdr {
+            fill: var(--mut);
+            font: 600 15px Rajdhani, sans-serif;
+            letter-spacing: 2px
+        }
+
+        @media(max-width:1000px) {
+            #app {
+                grid-template-columns: 1fr
+            }
+
+            #left {
+                position: absolute;
+                z-index: 5;
+                left: 0;
+                top: 56px;
+                bottom: 0;
+                width: 290px;
+                transform: translateX(-100%);
+                transition: .25s
+            }
+
+            #left.open {
+                transform: none
+            }
+
+            #right {
+                position: absolute;
+                z-index: 4;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                height: 46%;
+                border-top: 1px solid var(--line)
+            }
+
+            #stage {
+                grid-row: 1;
+                grid-column: 1
+            }
+
+            #hint,
+            #clock {
+                display: none
+            }
+
+            header h1 {
+                font-size: 18px
+            }
+
+            .badge {
+                display: none
+            }
+        }
+
+        @media(min-width:1001px) {
+            #btnPanel {
+                display: none
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <button id="btnPanel" class="b" style="width:auto;margin:0">☰</button>
+        <h1>Data Center <b>&amp; IBM SAN</b></h1>
+        <span class="badge">SIMULASI EDUKASI</span>
+        <div class="sp"></div>
+        <div class="seg"><button id="v3" class="on">3D</button><button id="v2">2D Topologi</button></div>
+        <span id="clock"></span>
+    </header>
+    <div id="app">
+        <aside id="left">
+            <h3>Lingkungan</h3>
+            <div class="row"><span>Suhu ruang</span><span id="mTemp" class="ok">22.4°C</span></div>
+            <div class="row"><span>Kelembapan</span><span id="mHum">48%</span></div>
+            <div class="row"><span>Beban daya</span><span id="mPow">118 kW</span></div>
+            <div class="row"><span>UPS</span><span id="mUps" class="ok">80%</span></div>
+            <div class="row"><span>CRAC aktif</span><span id="mCrac">4 / 4</span></div>
+            <h3>Performa SAN</h3>
+            <div class="row"><span>IOPS total</span><span id="mIops">480K</span></div>
+            <div class="row"><span>Latensi</span><span id="mLat">0.8 ms</span></div>
+            <div class="row"><span>Throughput</span><span id="mThr">3.8 GB/s</span></div>
+            <div class="row"><span>Kapasitas terpakai</span><span id="mCap">71.4%</span></div>
+            <div class="fl">
+                <div class="h"><span style="color:var(--cyan)">Fabric A</span><span id="lA">38%</span></div>
+                <div class="bar"><i id="bA" style="width:38%;background:var(--cyan)"></i></div>
+            </div>
+            <div class="fl">
+                <div class="h"><span style="color:var(--orange)">Fabric B</span><span id="lB">38%</span></div>
+                <div class="bar"><i id="bB" style="width:38%;background:var(--orange)"></i></div>
+            </div>
+            <h3>Simulasi gangguan</h3>
+            <button class="b" id="fA">⚡ Gangguan Fabric A</button>
+            <button class="b" id="fB">⚡ Gangguan Fabric B</button>
+            <button class="b" id="fC">❄ Matikan CRAC-1</button>
+            <button class="b" id="fM">🔌 Listrik utama putus</button>
+            <button class="b" id="fR">↺ Reset semua</button>
+            <h3>Layer</h3>
+            <label class="chk"><input type="checkbox" id="lyFc" checked> Kabel FC &amp; paket data</label>
+            <label class="chk"><input type="checkbox" id="lyAir" checked> Aliran udara</label>
+            <label class="chk"><input type="checkbox" id="lyPwr"> Jalur daya (bawah lantai)</label>
+            <label class="chk"><input type="checkbox" id="lyLbl" checked> Label komponen</label>
+            <h3>Belajar</h3>
+            <button class="b pri" id="btnTour">▶ Tur: perjalanan sebuah data</button>
+            <h3>Alert</h3>
+            <div id="alerts"></div>
+        </aside>
+        <section id="stage">
+            <div id="three"></div>
+            <div id="labels"></div>
+            <div id="svgWrap"></div>
+            <div id="camBar">
+                <button data-cam="over">Overview</button><button data-cam="top">Atas</button><button
+                    data-cam="aisle">Lorong</button>
+            </div>
+            <div id="hint">Seret = putar · Scroll = zoom · Klik perangkat = detail</div>
+            <div id="tour"></div>
+        </section>
+        <aside id="right"></aside>
+    </div>
+
+    <script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+    <script type="module">
+        let THREE = null, OrbitControls = null;
+        try {
+            THREE = await import('three');
+            ({ OrbitControls } = await import('three/addons/controls/OrbitControls.js'));
+        } catch (e) { console.warn('Three.js tidak termuat, mode 2D saja', e); THREE = null; }
+
+        const $ = s => document.querySelector(s);
+        const hv = id => { let h = 0; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h };
+
+        /* ================= DATA ================= */
+        const comps = [];
+        const rowsZ = { A: -10, B: -6, C: -1, D: 3 }, rowRot = { A: 0, B: Math.PI, C: 0, D: Math.PI };
+        const rack = (id, name, short, kind, row, x, color, o = {}) => comps.push({ id, name, short, kind, color, x, z: rowsZ[row], rot: rowRot[row], w: 1.2, h: 4, d: 1.6, ...o });
+        const CY = '#22d3ee', OR = '#fb923c', PU = '#a78bfa', GR = '#34d399', BL = '#60a5fa', PK = '#f472b6', SL = '#94a3b8', YE = '#fbbf24';
+
+        for (let i = 0; i < 6; i++) {
+            const z = i >= 4;
+            rack(`host-0${i + 1}`, `Host ${i + 1} · ${z ? 'IBM Z' : 'IBM Power'}`, `HOST-0${i + 1}`, 'host', 'A', -10 + i * 4, BL, {
+                p2: [90, 60 + i * 80],
+                focus: z ? 'Mainframe untuk transaksi kritis (core banking, dsb.)' : 'Server aplikasi & database (AIX/Linux)',
+                spec: z ? ['IBM z16 (contoh)', 'Hingga ratusan core, I/O sangat tinggi', '2× HBA FICON/FC 32Gb'] : ['IBM Power10 (contoh)', 'Core SMT8, RAM hingga TB', '2× HBA Fibre Channel 32Gb']
+            });
+        }
+        rack('fab-a1', 'SAN Switch · Fabric A1', 'FAB-A1', 'fabric', 'B', -10, CY, { fab: 'A', p2: [330, 100], spec: ['Switch Fibre Channel 32Gb (contoh)', '48 port, ISL trunking', 'Zoning: WWPN host ↔ SVC'], focus: 'Fabric A — jalur FC pertama', failable: true });
+        rack('fab-b1', 'SAN Switch · Fabric B1', 'FAB-B1', 'fabric', 'B', -6, OR, { fab: 'B', p2: [330, 200], spec: ['Switch Fibre Channel 32Gb (contoh)', '48 port, ISL trunking', 'Zoning: WWPN host ↔ SVC'], focus: 'Fabric B — jalur FC kedua (redundan)', failable: true });
+        rack('svc-01', 'IBM SAN Volume Controller · Node 1', 'SVC-01', 'svc', 'B', -2, PU, { p2: [580, 150], spec: ['SVC cluster node (contoh)', 'Cache 2× tinggi, 8× port FC 32Gb', 'Virtualisasi & Easy Tier'], focus: 'Virtualisasi storage — pool & volume' });
+        rack('svc-02', 'IBM SAN Volume Controller · Node 2', 'SVC-02', 'svc', 'B', 2, PU, { p2: [580, 390], spec: ['SVC cluster node (contoh)', 'Cache 2× tinggi, 8× port FC 32Gb', 'Virtualisasi & Easy Tier'], focus: 'Virtualisasi storage — pool & volume' });
+        rack('fab-a2', 'SAN Switch · Fabric A2', 'FAB-A2', 'fabric', 'B', 6, CY, { fab: 'A', p2: [330, 340], spec: ['Switch Fibre Channel 32Gb (contoh)', '48 port, ISL trunking', 'Zoning: WWPN host ↔ SVC'], focus: 'Fabric A — jalur FC pertama', failable: true });
+        rack('fab-b2', 'SAN Switch · Fabric B2', 'FAB-B2', 'fabric', 'B', 10, OR, { fab: 'B', p2: [330, 440], spec: ['Switch Fibre Channel 32Gb (contoh)', '48 port, ISL trunking', 'Zoning: WWPN host ↔ SVC'], focus: 'Fabric B — jalur FC kedua (redundan)', failable: true });
+        rack('fs1', 'IBM FlashSystem · 1', 'FS-1', 'storage', 'C', -10, GR, { p2: [830, 60], used: 71, spec: ['All-flash NVMe (contoh)', 'Kompresi & deduplikasi', 'RAID terdistribusi'], focus: 'Storage all-flash latensi rendah' });
+        rack('fs2', 'IBM FlashSystem · 2', 'FS-2', 'storage', 'C', -6, GR, { p2: [830, 340], used: 68, spec: ['All-flash NVMe (contoh)', 'Kompresi & deduplikasi', 'RAID terdistribusi'], focus: 'Storage all-flash latensi rendah' });
+        rack('ds8a', 'IBM DS8000 · A', 'DS8-A', 'storage', 'C', -2, GR, { p2: [830, 140], used: 74, spec: ['Enterprise storage (contoh)', 'Ketersediaan sangat tinggi', 'Replikasi sinkron/asinkron'], focus: 'Storage enterprise mission-critical' });
+        rack('ds8b', 'IBM DS8000 · B', 'DS8-B', 'storage', 'C', 2, GR, { p2: [830, 430], used: 70, spec: ['Enterprise storage (contoh)', 'Ketersediaan sangat tinggi', 'Replikasi sinkron/asinkron'], focus: 'Storage enterprise mission-critical' });
+        rack('tape-01', 'IBM TS4500 Tape Library · 1', 'TAPE-1', 'tape', 'C', 6, PK, { p2: [830, 220], spec: ['Tape library (contoh)', 'Kartrid LTO, kapasitas PB', 'Enkripsi & WORM'], focus: 'Backup & arsip jangka panjang' });
+        rack('tape-02', 'IBM TS4500 Tape Library · 2', 'TAPE-2', 'tape', 'C', 10, PK, { spec: ['Frame ekspansi', 'Slot kartrid tambahan', 'Terhubung ke TAPE-1'], focus: 'Ekspansi kapasitas tape' });
+        rack('net-01', 'Core Network · 1', 'NET-1', 'net', 'D', -10, SL, { spec: ['Core switch/router Ethernet', 'Uplink ISP 10/40Gb', 'Terpisah dari SAN (FC)'], focus: 'Jaringan LAN/WAN ke pengguna & ISP' });
+        rack('net-02', 'Core Network · 2', 'NET-2', 'net', 'D', -6, SL, { spec: ['Core switch/router Ethernet', 'Uplink ISP cadangan', 'Terpisah dari SAN (FC)'], focus: 'Jaringan LAN/WAN redundan' });
+        rack('mon-01', 'Server Monitoring', 'MON-1', 'mon', 'D', -2, GR, { spec: ['Server manajemen', 'Kumpulkan metrik, log, alert', 'Dasbor operasional'], focus: 'Pemantauan & manajemen infrastruktur' });
+        rack('pdu-1', 'PDU Utama', 'PDU-1', 'pdu', 'D', 2, YE, { spec: ['Distribusi daya A/B ke rack', 'Monitoring arus per outlet', 'Sumber ganda'], focus: 'Distribusi daya ke rack' });
+        rack('ups-1', 'UPS · 1', 'UPS-1', 'ups', 'D', 6, YE, { failable: true, spec: ['UPS kelas kVA (contoh)', 'Baterai VRLA/Li-ion', 'Transfer <10 ms'], focus: 'Cadangan daya darurat' });
+        rack('ups-2', 'UPS · 2', 'UPS-2', 'ups', 'D', 10, YE, { failable: true, spec: ['UPS kelas kVA (contoh)', 'Baterai VRLA/Li-ion', 'Transfer <10 ms'], focus: 'Cadangan daya darurat (redundan)' });
+        [-12, -4, 4, 12].forEach((x, i) => comps.push({ id: `crac-${i + 1}`, name: `CRAC-${i + 1} · Pendingin Presisi`, short: `CRAC-${i + 1}`, kind: 'crac', color: '#38bdf8', x, z: -12.5, rot: 0, w: 3, h: 3.4, d: 1.2, failable: i === 0, spec: ['Kapasitas 1200 CFM', 'Suhu inlet 18°C', 'Kontrol kelembapan'], focus: 'Sistem pendingin ruangan industri' }));
+        comps.push({ id: 'door', name: 'Secure Entry', short: 'Secure Entry', kind: 'door', color: '#e2e8f0', x: -16.8, z: 7, rot: Math.PI / 2, w: 2, h: 3.6, d: .3, spec: ['Kartu akses + biometrik', 'Mantrap & CCTV', 'Log keluar-masuk'], focus: 'Akses fisik terkontrol' });
+        comps.push({ id: 'fire', name: 'Fire Suppression', short: 'Fire Suppression', kind: 'fire', color: '#f87171', x: 16.2, z: -11.5, rot: 0, w: 1, h: 3, d: 1, spec: ['Gas bersih (clean agent)', 'Detektor asap VESDA', 'Aman untuk peralatan'], focus: 'Proteksi kebakaran tanpa merusak perangkat' });
+        comps.push({ id: 'tray', name: 'Cable Tray & Raised Floor', short: 'Cable Tray', kind: 'tray', color: '#f87171', x: 0, z: -8, rot: 0, w: 24, h: .25, d: .7, yc: 4.6, spec: ['Atas: kabel data FC/Ethernet', 'Bawah lantai: kabel daya', 'Bawah lantai: jalur udara dingin'], focus: 'Manajemen kabel & jalur udara' });
+
+        const EDU = {
+            host: 'Server aplikasi membaca/menulis data ke LUN melalui HBA Fibre Channel. Setiap host memakai 2 HBA yang masing-masing terhubung ke fabric berbeda (multipath), jadi satu kabel atau switch rusak tidak memutus I/O.',
+            fabric: 'Switch Fibre Channel membentuk fabric SAN. Fabric A dan B terpisah total (dual fabric) sehingga gangguan di satu fabric tidak mematikan semua jalur. Zoning mengatur host mana yang boleh melihat storage mana.',
+            svc: 'SAN Volume Controller memvirtualisasi banyak array menjadi satu pool dan menyajikan volume ke host. Host tidak perlu tahu array fisik di belakangnya, sehingga migrasi dan replikasi lebih mudah.',
+            storage: 'Array storage menyimpan data akhir. FlashSystem (all-flash) untuk latensi rendah, DS8000 untuk beban enterprise. Data dilindungi RAID dan bisa direplikasi ke lokasi lain.',
+            tape: 'Tape library menyimpan backup/arsip jangka panjang: murah per TB dan terisolasi (air-gapped) dari serangan ransomware.',
+            net: 'Jaringan Ethernet untuk pengguna dan ISP. Terpisah dari SAN (Fibre Channel) agar lalu lintas storage tidak terganggu lalu lintas umum.',
+            mon: 'Server monitoring mengumpulkan metrik, log, dan alert dari seluruh perangkat, lalu menampilkannya di dasbor operasional.',
+            pdu: 'PDU mendistribusikan daya ke setiap rack lewat dua sumber (A/B) supaya satu jalur daya putus tidak mematikan perangkat.',
+            ups: 'UPS menahan beban selama listrik PLN padam sampai genset menyala. Coba tombol "Listrik utama putus" untuk melihat baterai terkuras.',
+            crac: 'CRAC mendinginkan udara dan mengirimnya lewat raised floor ke cold aisle. Udara panas dari hot aisle kembali ke CRAC. Coba matikan CRAC-1 dan lihat suhu naik.',
+            door: 'Akses fisik data center dikontrol berlapis: kartu, biometrik, dan CCTV, dengan log tiap kali pintu dibuka.',
+            fire: 'Data center memakai gas bersih, bukan air, supaya api padam tanpa merusak perangkat elektronik.',
+            tray: 'Kabel data (FC/Ethernet) di tray atas, kabel daya dan udara dingin lewat bawah raised floor, agar rapi dan tidak saling mengganggu.'
+        };
+
+        /* link: host->switch, switch->svc, svc->storage */
+        const links = [];
+        const L = (a, b, f) => links.push({ id: 'l' + links.length, a, b, f });
+        [0, 1, 2].forEach(i => { L(`host-0${i + 1}`, 'fab-a1', 'A'); L(`host-0${i + 1}`, 'fab-b1', 'B'); });
+        [3, 4, 5].forEach(i => { L(`host-0${i + 1}`, 'fab-a2', 'A'); L(`host-0${i + 1}`, 'fab-b2', 'B'); });
+        L('fab-a1', 'svc-01', 'A'); L('fab-b1', 'svc-01', 'B'); L('fab-a2', 'svc-02', 'A'); L('fab-b2', 'svc-02', 'B');
+        L('svc-01', 'fs1', 'S'); L('svc-01', 'ds8a', 'S'); L('svc-01', 'tape-01', 'S'); L('svc-02', 'fs2', 'S'); L('svc-02', 'ds8b', 'S');
+        const byId = id => comps.find(c => c.id === id);
+
+        /* ================= STATE ================= */
+        const S = {
+            failed: new Set(), mains: true, ups: 80, temp: 22.4, hum: 48, view: '3d', selected: null, hover: null, hl: new Set(),
+            layers: { fc: true, air: true, pwr: false, lbl: true }, iops: 480000, lat: .8, pow: 118, tourStep: -1, lost: new Set(), tempLvl: 0, upsAlert: false
+        };
+        const linkUp = l => !S.failed.has(l.a) && !S.failed.has(l.b);
+        const hostPaths = id => links.filter(l => l.a === id && (l.f === 'A' || l.f === 'B') && linkUp(l)).length;
+        const failedCracs = () => comps.filter(c => c.kind === 'crac' && S.failed.has(c.id)).length;
+        const fabricDown = f => comps.some(c => c.fab === f && S.failed.has(c.id));
+        const fabLoad = f => { const sw = comps.filter(c => c.fab === f); const up = sw.filter(c => !S.failed.has(c.id)).length; if (!up) return 0; const other = f === 'A' ? 'B' : 'A'; return (fabricDown(other) ? 72 : 38) * (up / sw.length >= 1 ? 1 : 1.3); };
+
+        /* ================= ALERTS ================= */
+        function addAlert(lvl, msg) {
+            const d = document.createElement('div'); d.className = 'al ' + lvl;
+            d.innerHTML = `<small>${new Date().toLocaleTimeString('id-ID')} · ${lvl}</small>${msg}`;
+            const box = $('#alerts'); box.prepend(d); while (box.children.length > 30) box.lastChild.remove();
+        }
+        addAlert('INFO', 'Simulasi dimulai. Semua data adalah simulasi edukasi.');
+        addAlert('WARN', 'Kabel di cable tray lorong B belum dirapikan.');
+        addAlert('INFO', 'Firmware baru tersedia untuk FAB-B2.');
+
+        /* ================= STATUS & METRICS ================= */
+        function statusOf(c) {
+            const f = S.failed.has(c.id);
+            switch (c.kind) {
+                case 'host': { const p = hostPaths(c.id); return p === 2 ? { t: 'Online · 2/2 jalur aktif', k: 'ok' } : p === 1 ? { t: 'Degraded · 1/2 jalur (single path)', k: 'warn' } : { t: 'I/O TERPUTUS · 0/2 jalur', k: 'bad' }; }
+                case 'fabric': return f ? { t: 'GANGGUAN · port down', k: 'bad' } : { t: `Online · beban ${Math.round(fabLoad(c.fab))}%`, k: 'ok' };
+                case 'svc': return { t: 'Online · cluster 2 node', k: 'ok' };
+                case 'storage': return { t: `Online · terpakai ${c.used}%`, k: 'ok' };
+                case 'tape': return { t: 'Siaga · siap backup', k: 'ok' };
+                case 'net': return { t: 'Terhubung ke jaringan utama', k: 'ok' };
+                case 'mon': return { t: 'Aktif · memantau semua perangkat', k: 'ok' };
+                case 'pdu': return { t: S.mains ? 'Normal · sumber A/B' : 'Memakai UPS', k: S.mains ? 'ok' : 'warn' };
+                case 'ups': return !S.mains ? { t: `Baterai ${Math.round(S.ups)}% (discharge)`, k: S.ups < 20 ? 'bad' : 'warn' } : { t: `Baterai ${Math.round(S.ups)}% (charged)`, k: 'ok' };
+                case 'crac': return f ? { t: 'MATI · tidak mendinginkan', k: 'bad' } : { t: 'Aktif · inlet 18°C', k: 'ok' };
+                case 'door': return { t: 'Terkunci', k: 'ok' };
+                case 'fire': return { t: 'Siaga · tidak ada deteksi', k: 'ok' };
+                default: return { t: 'Normal', k: 'ok' };
+            }
+        }
+        function recompute() {
+            const hosts = comps.filter(c => c.kind === 'host');
+            const live = hosts.reduce((s, h) => s + hostPaths(h.id), 0);
+            const alive = hosts.filter(h => hostPaths(h.id) > 0).length;
+            const ratio = live / 12;
+            S.iops = alive === 0 ? 0 : 480000 * (alive / 6) * (.72 + .28 * ratio);
+            S.lat = alive === 0 ? null : .8 + (1 - ratio) * 1.2;
+            // alerts host lost
+            hosts.forEach(h => {
+                const p = hostPaths(h.id);
+                if (p === 0 && !S.lost.has(h.id)) { S.lost.add(h.id); addAlert('CRIT', `${h.short} kehilangan semua jalur I/O.`); }
+                if (p > 0 && S.lost.has(h.id)) { S.lost.delete(h.id); addAlert('INFO', `${h.short} pulih (${p}/2 jalur).`); }
+            });
+            paint();
+        }
+        function paint() {
+            $('#mTemp').textContent = S.temp.toFixed(1) + '°C';
+            $('#mTemp').className = S.temp > 30 ? 'bad' : S.temp > 26 ? 'warn' : 'ok';
+            $('#mHum').textContent = Math.round(S.hum) + '%';
+            $('#mPow').textContent = S.pow.toFixed(0) + ' kW';
+            $('#mUps').textContent = Math.round(S.ups) + '%';
+            $('#mUps').className = S.ups < 20 ? 'bad' : !S.mains ? 'warn' : 'ok';
+            $('#mCrac').textContent = (4 - failedCracs()) + ' / 4';
+            $('#mIops').textContent = S.iops ? Math.round(S.iops / 1000) + 'K' : '0';
+            $('#mIops').className = S.iops === 0 ? 'bad' : '';
+            $('#mLat').textContent = S.lat == null ? '—' : S.lat.toFixed(1) + ' ms';
+            $('#mThr').textContent = (S.iops * 8 / 1e6).toFixed(1) + ' GB/s';
+            const a = Math.round(fabLoad('A')), b = Math.round(fabLoad('B'));
+            $('#lA').textContent = a + '%'; $('#lB').textContent = b + '%'; $('#bA').style.width = a + '%'; $('#bB').style.width = b + '%';
+            $('#fA').classList.toggle('active', comps.filter(c => c.fab === 'A').every(c => S.failed.has(c.id)));
+            $('#fB').classList.toggle('active', comps.filter(c => c.fab === 'B').every(c => S.failed.has(c.id)));
+            $('#fC').classList.toggle('active', S.failed.has('crac-1'));
+            $('#fM').classList.toggle('active', !S.mains);
+            refreshVisuals(); update2D(); updateLabelsText(); renderDrawer();
+        }
+        function setFail(id, on) {
+            const c = byId(id); if (!c) return;
+            if (on) S.failed.add(id); else S.failed.delete(id);
+            if (c.kind === 'fabric') addAlert(on ? 'CRIT' : 'INFO', on ? `Port down pada ${c.short}. Multipath mengalihkan trafik ke Fabric ${c.fab === 'A' ? 'B' : 'A'}.` : `${c.short} pulih.`);
+            if (c.kind === 'crac') addAlert(on ? 'WARN' : 'INFO', on ? `${c.short} mati. Suhu ruang akan naik.` : `${c.short} aktif kembali.`);
+            recompute();
+        }
+        function setMains(on) { S.mains = on; if (!on) { addAlert('CRIT', 'Listrik utama putus. Beban dipikul UPS.'); S.upsAlert = false; } else addAlert('INFO', 'Listrik utama pulih. UPS mengisi ulang.'); recompute(); }
+        const toggleFab = f => { const sw = comps.filter(c => c.fab === f); const all = sw.every(c => S.failed.has(c.id)); sw.forEach(c => { all ? S.failed.delete(c.id) : S.failed.add(c.id) }); addAlert(all ? 'INFO' : 'CRIT', all ? `Fabric ${f} pulih.` : `Fabric ${f} down total. Trafik dialihkan ke Fabric ${f === 'A' ? 'B' : 'A'}.`); recompute(); };
+        $('#fA').onclick = () => toggleFab('A');
+        $('#fB').onclick = () => toggleFab('B');
+        $('#fC').onclick = () => setFail('crac-1', !S.failed.has('crac-1'));
+        $('#fM').onclick = () => setMains(!S.mains);
+        $('#fR').onclick = () => { S.failed.clear(); S.mains = true; addAlert('INFO', 'Semua gangguan direset.'); recompute(); };
+
+        /* tick */
+        setInterval(() => {
+            const tgt = 22.4 + 2.4 * failedCracs();
+            S.temp += (tgt - S.temp) * .12 + (Math.random() - .5) * .1;
+            if (S.temp > 30 && S.tempLvl < 2) { S.tempLvl = 2; addAlert('CRIT', `Suhu ruang ${S.temp.toFixed(1)}°C — kritis!`); }
+            else if (S.temp > 26 && S.tempLvl < 1) { S.tempLvl = 1; addAlert('WARN', `Suhu ruang naik ke ${S.temp.toFixed(1)}°C.`); }
+            else if (S.temp < 24.5 && S.tempLvl > 0) { S.tempLvl = 0; addAlert('INFO', 'Suhu ruang kembali normal.'); }
+            S.hum = 48 + (Math.random() - .5) * 2;
+            S.pow = 118 + (Math.random() - .5) * 4 + (S.mains ? 0 : -6);
+            if (!S.mains) S.ups = Math.max(0, S.ups - .8); else S.ups = Math.min(80, S.ups + .5);
+            if (S.ups < 20 && !S.mains && !S.upsAlert) { S.upsAlert = true; addAlert('CRIT', 'Baterai UPS di bawah 20%.'); }
+            const j = 1 + (Math.random() - .5) * .06;
+            const hosts = comps.filter(c => c.kind === 'host'); const live = hosts.reduce((s, h) => s + hostPaths(h.id), 0); const alive = hosts.filter(h => hostPaths(h.id) > 0).length;
+            S.iops = alive === 0 ? 0 : 480000 * (alive / 6) * (.72 + .28 * live / 12) * j;
+            paint();
+        }, 2000);
+        setInterval(() => { $('#clock').textContent = new Date().toLocaleTimeString('id-ID'); }, 1000);
+
+        /* ================= DETAIL PANEL ================= */
+        function renderDrawer() {
+            const R = $('#right'); const c = byId(S.selected);
+            if (!c) { R.innerHTML = `<div class="empty"><big>🖱️</big>Klik perangkat di ruangan<br>untuk melihat detail.<br><br><small>Coba juga tombol gangguan di panel kiri atau Tur terpandu.</small></div>`; return; }
+            const st = statusOf(c);
+            const neigh = [...new Set(links.filter(l => l.a === c.id || l.b === c.id).map(l => l.a === c.id ? l.b : l.a))];
+            const h = hv(c.id);
+            let live = '';
+            const row = (k, v, p) => `<div class="fl"><div class="h"><span style="color:var(--mut)">${k}</span><span>${v}</span></div><div class="bar"><i style="width:${p}%;background:${c.color}"></i></div></div>`;
+            if (c.kind === 'host') { const p = hostPaths(c.id); const share = S.iops ? S.iops / Math.max(1, comps.filter(x => x.kind === 'host' && hostPaths(x.id) > 0).length) : 0; live = row('Jalur I/O', `${p}/2`, p * 50) + row('IOPS', Math.round(share / 1000) + 'K', Math.min(100, share / 1600)) + row('Latensi', S.lat == null ? '—' : S.lat.toFixed(1) + ' ms', S.lat == null ? 0 : Math.min(100, S.lat * 35)); }
+            else if (c.kind === 'fabric') { const l = S.failed.has(c.id) ? 0 : fabLoad(c.fab); live = row('Utilisasi port', Math.round(l) + '%', l); }
+            else if (c.kind === 'storage') { live = row('Kapasitas terpakai', c.used + '%', c.used) + row('IOPS', Math.round(S.iops / 5000) + 'K', Math.min(100, S.iops / 9000)); }
+            else if (c.kind === 'ups') { live = row('Baterai', Math.round(S.ups) + '%', S.ups); }
+            else if (c.kind === 'crac') { live = row('Suhu inlet', S.failed.has(c.id) ? '—' : '18°C', S.failed.has(c.id) ? 0 : 50) + row('Kipas', S.failed.has(c.id) ? '0 rpm' : (1400 + h % 200) + ' rpm', S.failed.has(c.id) ? 0 : 70); }
+            else if (c.kind === 'svc') { live = row('Cache hit', (88 + h % 8) + '%', 88 + h % 8); }
+            const act = (c.failable ? `<button class="b ${S.failed.has(c.id) ? 'active' : ''}" data-act="fail">${S.failed.has(c.id) ? '↺ Pulihkan' : '⚡ Simulasikan gangguan'}</button>` : '') + (c.kind === 'ups' ? `<button class="b ${!S.mains ? 'active' : ''}" data-act="mains">${S.mains ? '🔌 Putuskan listrik utama' : '↺ Pulihkan listrik utama'}</button>` : '');
+            $('#right').innerHTML = `
+   <span class="tag" style="color:${c.color};border-color:${c.color}">${c.kind.toUpperCase()}</span>
+   <h2>${c.name}</h2>
+   <div class="kv">ID: <b>${c.id}</b></div>
+   <div class="kv">Status: <b class="${st.k}">${st.t}</b></div>
+   <div class="kv">Fokus: <b>${c.focus}</b></div>
+   <div class="sec">Spesifikasi</div><ul class="sp2">${c.spec.map(s => `<li>${s}</li>`).join('')}</ul>
+   ${live ? `<div class="sec">Metrik live</div>${live}` : ''}
+   ${neigh.length ? `<div class="sec">Terhubung ke</div>${neigh.map(n => `<span class="chip" data-go="${n}">${byId(n).short}</span>`).join('')}` : ''}
+   <div class="sec">Peran dalam SAN</div><div class="edu">${EDU[c.kind] || ''}</div>
+   <div style="margin-top:12px">${act}<button class="b" data-act="focus">◎ Fokus kamera</button><button class="b" data-act="close">✕ Tutup</button></div>
+   <div class="kv" style="margin-top:10px;font-size:11px">Nama model hanya contoh · data simulasi</div>`;
+        }
+        $('#right').addEventListener('click', e => {
+            const g = e.target.closest('[data-go]'); if (g) { select(g.dataset.go); return; }
+            const a = e.target.closest('[data-act]'); if (!a) return;
+            const c = byId(S.selected);
+            if (a.dataset.act === 'close') select(null);
+            if (a.dataset.act === 'fail' && c) setFail(c.id, !S.failed.has(c.id));
+            if (a.dataset.act === 'mains') setMains(!S.mains);
+            if (a.dataset.act === 'focus' && c) flyToComp(c);
+        });
+        function select(id) {
+            S.selected = id;
+            renderDrawer(); refreshSel();
+            document.querySelectorAll('.lbl').forEach(l => l.classList.toggle('sel', l.dataset.id === id));
+            document.querySelectorAll('.n').forEach(n => n.classList.toggle('sel', n.dataset.id === id));
+        }
+
+        /* ================= LABELS ================= */
+        const labelEls = [];
+        function buildLabels() {
+            const box = $('#labels');
+            comps.forEach(c => {
+                const el = document.createElement('div'); el.className = 'lbl'; el.dataset.id = c.id;
+                el.innerHTML = `<i style="background:${c.color}"></i><span></span>`;
+                el.onclick = () => select(c.id); box.appendChild(el);
+                labelEls.push({ el, c, pos: labelPos(c) });
+            });
+            [['Cold Aisle', 0, .5, -8], ['Hot Aisle', 0, .5, -3.5], ['Cold Aisle', 0, .5, 1]].forEach(z => {
+                const el = document.createElement('div'); el.className = 'lbl zone'; el.textContent = z[0]; box.appendChild(el);
+                labelEls.push({ el, c: null, pos: THREE ? new THREE.Vector3(z[1] + 13, z[2], z[3]) : null });
+            });
+            updateLabelsText();
+        }
+        function labelPos(c) {
+            if (!THREE) return null;
+            const y = c.kind === 'tray' ? 5.4 : c.kind === 'door' ? 4.2 : c.kind === 'crac' ? 4.1 : c.kind === 'fire' ? 3.6 : 4.7;
+            return new THREE.Vector3(c.x, y, c.z);
+        }
+        function updateLabelsText() {
+            labelEls.forEach(({ el, c }) => {
+                if (!c) return;
+                let t = c.short;
+                if (c.kind === 'crac') t += S.failed.has(c.id) ? ' · OFF' : ' · 18°C';
+                else if (c.kind === 'ups') t += ` · ${Math.round(S.ups)}%`;
+                else if (c.kind === 'fabric') t += S.failed.has(c.id) ? ' · DOWN' : ' · 32G';
+                else if (c.kind === 'host') { const p = hostPaths(c.id); if (p < 2) t += p ? ' · 1/2' : ' · LOST'; }
+                el.querySelector('span').textContent = t;
+                el.style.borderColor = ((c.kind === 'fabric' && S.failed.has(c.id)) || (c.kind === 'host' && hostPaths(c.id) === 0) || (c.kind === 'crac' && S.failed.has(c.id))) ? '#ef4444' : '';
+            });
+        }
+
+        /* ================= 3D ================= */
+        let renderer, scene, camera, controls, pickables = [], leds = [], particles = [], airPts = [], lyFc, lyAir, lyPwr;
+        const clock3 = { t: 0 }; let tween = null;
+        const CAM = { over: { p: [0, 15, 26], t: [0, 1.5, -3] }, top: { p: [0, 36, 3], t: [0, 0, -3] }, aisle: { p: [-16, 2.4, -8], t: [12, 2, -8] } };
+
+        function mkTex(w, h, fn) { const cv = document.createElement('canvas'); cv.width = w; cv.height = h; fn(cv.getContext('2d'), w, h); const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; }
+        function drawFace(g, c, w, h) {
+            g.fillStyle = '#0a1424'; g.fillRect(0, 0, w, h); g.strokeStyle = '#1e3a5f'; g.lineWidth = 4; g.strokeRect(2, 2, w - 4, h - 4);
+            g.textBaseline = 'middle'; const col = c.color;
+            if (c.kind === 'crac') {
+                g.fillStyle = '#0c1d33'; g.fillRect(8, 8, w - 16, h - 16); g.strokeStyle = '#1d4f7a'; g.lineWidth = 3;
+                for (let y = 24; y < h - 60; y += 13) { g.beginPath(); g.moveTo(20, y); g.lineTo(w - 20, y); g.stroke(); }
+                g.fillStyle = col; g.font = 'bold 26px monospace'; g.fillText(c.short, 20, h - 36);
+                g.fillStyle = '#6fa8d6'; g.font = '16px monospace'; g.fillText('18°C · 1200 CFM', 20, h - 14); return;
+            }
+            if (c.kind === 'door') {
+                g.fillStyle = '#050b14'; g.fillRect(10, 10, w - 20, h - 20); g.fillStyle = '#1b3350'; g.fillRect(w - 46, h * .52, 26, 44);
+                g.fillStyle = '#38bdf8'; g.beginPath(); g.arc(w - 33, h * .52 + 12, 5, 0, 7); g.fill();
+                g.fillStyle = col; g.font = 'bold 24px monospace'; g.textAlign = 'center'; g.fillText('SECURE', w / 2, h * .28); g.fillText('ENTRY', w / 2, h * .28 + 30); g.textAlign = 'left'; return;
+            }
+            g.fillStyle = col; g.globalAlpha = .92; g.fillRect(10, 10, w - 20, 28); g.globalAlpha = 1;
+            g.fillStyle = '#04101c'; g.font = 'bold 19px monospace'; g.fillText(c.short, 18, 25);
+            let y = 50; const bot = h - 24;
+            const unit = hh => { g.fillStyle = '#12263f'; g.fillRect(14, y, w - 28, hh); g.strokeStyle = '#27496f'; g.lineWidth = 1.5; g.strokeRect(14, y, w - 28, hh); const y0 = y; y += hh + 6; return y0; };
+            const led = (x, yy, cc) => { g.fillStyle = cc; g.beginPath(); g.arc(x, yy, 4, 0, 7); g.fill(); };
+            const rnd = (() => { let s = hv(c.id); return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; })();
+            if (c.kind === 'host') { while (y + 52 < bot) { const y0 = unit(50); led(w - 30, y0 + 14, '#4ade80'); led(w - 46, y0 + 14, rnd() > .5 ? '#38bdf8' : '#fb923c'); g.fillStyle = '#1d3a5c'; g.fillRect(24, y0 + 10, 90, 6); g.fillRect(24, y0 + 26, 60, 6); } }
+            else if (c.kind === 'fabric') { while (y + 100 < bot) { const y0 = unit(98); for (let r = 0; r < 2; r++)for (let k = 0; k < 12; k++) { g.fillStyle = rnd() > .25 ? col : '#1d3a5c'; g.globalAlpha = .85; g.fillRect(22 + k * 17, y0 + 14 + r * 26, 12, 16); g.globalAlpha = 1; } g.fillStyle = '#6f8fae'; g.font = '12px monospace'; g.fillText('32G FC', 22, y0 + 84); } }
+            else if (c.kind === 'svc') { while (y + 150 < bot) { const y0 = unit(148); g.fillStyle = col; g.font = 'bold 16px monospace'; g.fillText('NODE', 24, y0 + 22); for (let k = 0; k < 8; k++) { g.fillStyle = rnd() > .2 ? '#a78bfa' : '#1d3a5c'; g.fillRect(24 + k * 26, y0 + 50, 18, 18); } led(w - 32, y0 + 22, '#4ade80'); g.fillStyle = '#1d3a5c'; g.fillRect(24, y0 + 90, 150, 10); } }
+            else if (c.kind === 'storage') { while (y + 120 < bot) { const y0 = unit(118); for (let r = 0; r < 3; r++)for (let k = 0; k < 12; k++) { g.fillStyle = rnd() > .1 ? '#14724f' : '#1d3a5c'; g.fillRect(22 + k * 17, y0 + 10 + r * 32, 13, 26); } led(w - 30, y0 + 106, '#4ade80'); } }
+            else if (c.kind === 'tape') {
+                g.fillStyle = '#07101d'; g.fillRect(14, y, w - 28, bot - y - 90); g.strokeStyle = '#27496f'; g.strokeRect(14, y, w - 28, bot - y - 90);
+                for (let r = 0; r < 10; r++)for (let k = 0; k < 6; k++) { g.fillStyle = rnd() > .3 ? '#9d3a6e' : '#1d3a5c'; g.fillRect(22 + k * 36, y + 10 + r * 38, 28, 28); }
+                y = bot - 80; unit(60); g.fillStyle = '#f472b6'; g.fillRect(24, y - 50, w - 48, 8);
+            }
+            else if (c.kind === 'net') { while (y + 60 < bot) { const y0 = unit(58); for (let k = 0; k < 16; k++) { g.fillStyle = rnd() > .3 ? '#4ade80' : '#1d3a5c'; g.fillRect(20 + k * 13, y0 + 12, 9, 12); g.fillStyle = rnd() > .5 ? '#fb923c' : '#1d3a5c'; g.fillRect(20 + k * 13, y0 + 30, 9, 12); } } }
+            else if (c.kind === 'mon') { const y0 = unit(240); g.fillStyle = '#04140d'; g.fillRect(20, y0 + 8, w - 40, 224); g.fillStyle = '#4ade80'; g.font = '13px monospace';['> poll fabric A  OK', '> poll fabric B  OK', '> iops  480k', '> temp  22.4C', '> ups   80%', '> alerts 1 warn'].forEach((t, i) => g.fillText(t, 28, y0 + 28 + i * 22)); while (y + 50 < bot) { const y1 = unit(48); led(w - 30, y1 + 14, '#4ade80'); } }
+            else if (c.kind === 'pdu') { while (y + 40 < bot) { const y0 = unit(38); for (let k = 0; k < 8; k++) { g.fillStyle = '#05101c'; g.fillRect(22 + k * 26, y0 + 9, 18, 20); } led(w - 28, y0 + 8, '#fbbf24'); } }
+            else if (c.kind === 'ups') {
+                const y0 = unit(120); g.fillStyle = '#fbbf24'; g.font = 'bold 20px monospace'; g.fillText('UPS', 24, y0 + 24); g.fillStyle = '#10223a'; g.fillRect(24, y0 + 50, w - 60, 16); g.fillStyle = '#4ade80'; g.fillRect(24, y0 + 50, (w - 60) * .8, 16); g.fillStyle = '#6fa8d6'; g.font = '13px monospace'; g.fillText('80% · CHARGED', 24, y0 + 92);
+                while (y + 70 < bot) { const y1 = unit(68); for (let k = 0; k < 6; k++) { g.fillStyle = '#3b2f10'; g.fillRect(22 + k * 34, y1 + 10, 28, 46); } }
+            }
+        }
+        function init3D() {
+            const host = $('#three');
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+            host.appendChild(renderer.domElement);
+            scene = new THREE.Scene(); scene.background = new THREE.Color('#050a14'); scene.fog = new THREE.Fog('#050a14', 38, 90);
+            camera = new THREE.PerspectiveCamera(50, 1, .1, 200);
+            camera.position.set(...CAM.over.p);
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.target.set(...CAM.over.t); controls.enableDamping = true; controls.maxPolarAngle = Math.PI * .49; controls.minDistance = 4; controls.maxDistance = 60;
+            scene.add(new THREE.AmbientLight('#8fb4e0', .9));
+            const dl = new THREE.DirectionalLight('#ffffff', .9); dl.position.set(8, 20, 12); scene.add(dl);
+            const pl = new THREE.PointLight('#22d3ee', 1.2, 40); pl.position.set(0, 6, -4); scene.add(pl);
+
+            // floor
+            const ft = mkTex(512, 512, (g, w, h) => { g.fillStyle = '#0a1626'; g.fillRect(0, 0, w, h); g.strokeStyle = '#17375c'; g.lineWidth = 3; g.strokeRect(0, 0, w, h); for (let i = 0; i < 4; i++)for (let j = 0; j < 4; j++) { g.fillStyle = '#0d1c31'; g.fillRect(i * 128 + 6, j * 128 + 6, 116, 116); } });
+            ft.wrapS = ft.wrapT = THREE.RepeatWrapping; ft.repeat.set(17, 12);
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(34, 24), new THREE.MeshStandardMaterial({ map: ft, roughness: .8, metalness: .2 }));
+            floor.rotation.x = -Math.PI / 2; floor.position.set(0, 0, -1); scene.add(floor);
+            const aisle = (z, wd, col, op) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(26, wd), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: op })); m.rotation.x = -Math.PI / 2; m.position.set(0, .02, z); scene.add(m); };
+            aisle(-8, 2.2, '#22d3ee', .12); aisle(1, 2.2, '#22d3ee', .12); aisle(-3.5, 3.4, '#ef4444', .1);
+            // walls
+            const wm = new THREE.MeshStandardMaterial({ color: '#0b1830', roughness: .9, transparent: true, opacity: .85, side: THREE.DoubleSide });
+            const bw = new THREE.Mesh(new THREE.PlaneGeometry(34, 8), wm); bw.position.set(0, 4, -13); scene.add(bw);
+            const lw = new THREE.Mesh(new THREE.PlaneGeometry(24, 8), wm); lw.rotation.y = Math.PI / 2; lw.position.set(-17, 4, -1); scene.add(lw);
+            const rw = new THREE.Mesh(new THREE.PlaneGeometry(24, 8), wm); rw.rotation.y = -Math.PI / 2; rw.position.set(17, 4, -1); scene.add(rw);
+
+            lyFc = new THREE.Group(); lyAir = new THREE.Group(); lyPwr = new THREE.Group(); scene.add(lyFc, lyAir, lyPwr);
+
+            // components
+            comps.forEach(c => {
+                const g = new THREE.Group(); g.position.set(c.x, 0, c.z); g.rotation.y = c.rot; c.group = g;
+                const yc = c.yc ?? c.h / 2;
+                c.bodyMat = new THREE.MeshStandardMaterial({ color: '#0e1b2e', metalness: .5, roughness: .55, emissive: new THREE.Color(c.color), emissiveIntensity: 0 });
+                let body;
+                if (c.kind === 'fire') {
+                    body = new THREE.Mesh(new THREE.CylinderGeometry(.45, .45, c.h, 20), c.bodyMat);
+                    const b2 = new THREE.Mesh(new THREE.CylinderGeometry(.45, .45, c.h, 20), c.bodyMat); b2.position.set(1.1, yc, 0); b2.userData.cid = c.id; g.add(b2); pickables.push(b2);
+                    const cap = new THREE.Mesh(new THREE.CylinderGeometry(.47, .47, .5, 20), new THREE.MeshStandardMaterial({ color: '#b91c1c' })); cap.position.set(0, c.h - .1, 0); g.add(cap);
+                    const cap2 = cap.clone(); cap2.position.x = 1.1; g.add(cap2);
+                    c.faceMat = null;
+                } else {
+                    body = new THREE.Mesh(new THREE.BoxGeometry(c.w, c.h, c.d), c.bodyMat);
+                    if (c.kind === 'tray') {
+                        const b2 = new THREE.Mesh(new THREE.BoxGeometry(24, .25, .7), c.bodyMat); b2.position.set(0, yc, 9); b2.userData.cid = c.id; g.add(b2); pickables.push(b2);
+                    } else {
+                        const fw = c.w * .92, fh = c.h * .95; const tex = mkTex(256, Math.round(256 * fh / fw), (ctx, w, h) => drawFace(ctx, c, w, h));
+                        c.faceMat = new THREE.MeshBasicMaterial({ map: tex });
+                        const face = new THREE.Mesh(new THREE.PlaneGeometry(fw, fh), c.faceMat); face.position.set(0, yc, c.d / 2 + .012); face.userData.cid = c.id; g.add(face); pickables.push(face);
+                    }
+                }
+                body.position.y = yc; body.userData.cid = c.id; g.add(body); pickables.push(body);
+                // edges
+                const eg = new THREE.EdgesGeometry(new THREE.BoxGeometry(c.w + .12, c.h + .12, c.d + .12));
+                c.edge = new THREE.LineSegments(eg, new THREE.LineBasicMaterial({ color: '#ffffff' })); c.edge.position.y = yc; c.edge.visible = false; g.add(c.edge);
+                // leds
+                if (!['crac', 'door', 'fire', 'tray'].includes(c.kind)) {
+                    for (let i = 0; i < 4; i++) {
+                        const m = new THREE.Mesh(new THREE.BoxGeometry(.07, .07, .03), new THREE.MeshBasicMaterial({ color: ['#4ade80', '#fb923c', '#38bdf8', '#4ade80'][i] }));
+                        m.position.set((Math.random() - .5) * c.w * .7, c.h * (.12 + Math.random() * .75), c.d / 2 + .04); g.add(m);
+                        leds.push({ m, c, ph: Math.random() * 6, rt: 2 + Math.random() * 5, col: m.material.color.getHex() });
+                    }
+                }
+                scene.add(g);
+            });
+
+            // links
+            const lane = { A: .55, B: .95, S: 1.35 }, colr = { A: '#22d3ee', B: '#fb923c', S: '#a78bfa' };
+            links.forEach((l, i) => {
+                const a = byId(l.a), b = byId(l.b); const hh = 4.05 + lane[l.f] + (i % 3) * .12; const jx = ((i % 5) - 2) * .16, jz = ((i % 3) - 1) * .18;
+                const pts = [new THREE.Vector3(a.x + jx, 4.05, a.z + jz), new THREE.Vector3(a.x + jx, hh, a.z + jz), new THREE.Vector3(b.x + jx, hh, b.z + jz), new THREE.Vector3(b.x + jx, 4.05, b.z + jz)];
+                const seg = []; let len = 0; for (let k = 1; k < pts.length; k++) { const d = pts[k].distanceTo(pts[k - 1]); seg.push(d); len += d; }
+                l.path = { pts, seg, len };
+                l.line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: colr[l.f], transparent: true, opacity: .75 }));
+                lyFc.add(l.line);
+                l.parts = [0, 1, 2].map(k => { const m = new THREE.Mesh(new THREE.SphereGeometry(.09, 8, 8), new THREE.MeshBasicMaterial({ color: colr[l.f] })); lyFc.add(m); return { m, off: k / 3 }; });
+                l.colr = colr[l.f];
+            });
+
+            // air particles
+            const mkAir = (zc, wd, col, up, top, n) => {
+                const pos = new Float32Array(n * 3); for (let i = 0; i < n; i++) { pos[i * 3] = (Math.random() - .5) * 24; pos[i * 3 + 1] = Math.random() * top; pos[i * 3 + 2] = zc + (Math.random() - .5) * wd; }
+                const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+                const pts = new THREE.Points(geo, new THREE.PointsMaterial({ color: col, size: .13, transparent: true, opacity: .7 }));
+                lyAir.add(pts); airPts.push({ geo, pos, up, top, n });
+            };
+            mkAir(-8, 1.8, '#38bdf8', .55, 3.5, 70); mkAir(1, 1.8, '#38bdf8', .55, 3.5, 70); mkAir(-3.5, 3, '#fb923c', .45, 5.5, 70);
+
+            // power lines under floor
+            const pm = new THREE.LineBasicMaterial({ color: '#fbbf24', transparent: true, opacity: .8 });
+            const busZ = 6.5;
+            lyPwr.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-11, -.2, busZ), new THREE.Vector3(11, -.2, busZ)]), pm));
+            comps.filter(c => ['host', 'fabric', 'svc', 'storage', 'tape', 'net', 'mon'].includes(c.kind)).forEach(c => {
+                lyPwr.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(c.x, -.2, busZ), new THREE.Vector3(c.x, -.2, c.z), new THREE.Vector3(c.x, .02, c.z)]), pm));
+            });
+
+            // events
+            const el = renderer.domElement; let down = null;
+            el.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, t: performance.now() }; });
+            el.addEventListener('pointerup', e => {
+                if (!down) return; const d = Math.hypot(e.clientX - down.x, e.clientY - down.y);
+                if (d < 6) { const id = pickAt(e); select(id || null); }
+                down = null;
+            });
+            el.addEventListener('pointermove', e => { const id = pickAt(e); if (id !== S.hover) { S.hover = id; el.style.cursor = id ? 'pointer' : 'grab'; } });
+            new ResizeObserver(resize3D).observe($('#stage')); resize3D();
+        }
+        const ray = null;
+        function pickAt(e) {
+            const r = renderer.domElement.getBoundingClientRect();
+            const v = new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+            const rc = new THREE.Raycaster(); rc.setFromCamera(v, camera);
+            const h = rc.intersectObjects(pickables, false);
+            return h.length ? h[0].object.userData.cid : null;
+        }
+        function resize3D() {
+            if (!renderer) return; const s = $('#stage'); const w = s.clientWidth, h = s.clientHeight;
+            if (!w || !h) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+        }
+        function refreshVisuals() {
+            if (!THREE || !scene) return;
+            comps.forEach(c => {
+                if (c.faceMat) { const bad = (c.kind === 'fabric' || c.kind === 'crac') && S.failed.has(c.id) || (c.kind === 'host' && hostPaths(c.id) === 0); c.faceMat.color.setRGB(bad ? 1 : 1, bad ? .35 : 1, bad ? .35 : 1); c.isBad = bad; }
+            });
+            links.forEach(l => { const up = linkUp(l); l.up = up; l.line.material.color.set(up ? l.colr : '#ef4444'); l.line.material.opacity = up ? .75 : .5; l.parts.forEach(p => p.m.visible = up); });
+            lyFc.visible = S.layers.fc; lyAir.visible = S.layers.air; lyPwr.visible = S.layers.pwr;
+            refreshSel();
+        }
+        function refreshSel() {
+            if (!THREE || !scene) return;
+            comps.forEach(c => { if (c.edge) c.edge.visible = (c.id === S.selected) || S.hl.has(c.id); });
+        }
+        function setGlow(c, lv) {
+            c.bodyMat.emissiveIntensity = lv * .6;
+            if (c.faceMat && !c.isBad) { const s = 1 + lv * .7; c.faceMat.color.setRGB(s, s, s); }
+        }
+        function animate() {
+            requestAnimationFrame(animate);
+            if (S.view !== '3d' || !renderer) return;
+            const t = performance.now() / 1000, dt = Math.min(.05, t - clock3.t); clock3.t = t;
+            if (tween) {
+                const k = Math.min(1, (performance.now() - tween.t0) / tween.dur), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+                camera.position.lerpVectors(tween.p0, tween.p1, e); controls.target.lerpVectors(tween.g0, tween.g1, e); if (k >= 1) tween = null;
+            }
+            controls.update();
+            comps.forEach(c => {
+                const hov = S.hover === c.id, sel = S.selected === c.id, hl = S.hl.has(c.id);
+                setGlow(c, hl ? .5 + .5 * Math.sin(t * 4) : (hov ? .7 : (sel ? .5 : 0)));
+            });
+            leds.forEach(L => { const bad = L.c.isBad; L.m.material.color.setHex(bad ? 0xef4444 : L.col); L.m.visible = bad ? true : Math.sin(t * L.rt + L.ph) > -.3; });
+            if (S.layers.fc) {
+                const fa = fabricDown('B') ? 1.8 : 1, fb = fabricDown('A') ? 1.8 : 1;
+                links.forEach(l => {
+                    if (!l.up) return; const sp = (l.f === 'A' ? fa : l.f === 'B' ? fb : 1) * .07;
+                    l.parts.forEach(p => {
+                        const u = ((t * sp + p.off) % 1); let d = u * l.path.len; const P = l.path;
+                        for (let i = 0; i < P.seg.length; i++) { if (d <= P.seg[i] || i === P.seg.length - 1) { p.m.position.lerpVectors(P.pts[i], P.pts[i + 1], Math.min(1, d / P.seg[i])); break; } d -= P.seg[i]; }
+                    });
+                });
+            }
+            if (S.layers.air) { airPts.forEach(a => { for (let i = 0; i < a.n; i++) { let y = a.pos[i * 3 + 1] + a.up * dt; if (y > a.top) y = 0; a.pos[i * 3 + 1] = y; } a.geo.attributes.position.needsUpdate = true; }); }
+            renderer.render(scene, camera);
+            // labels
+            const w = renderer.domElement.clientWidth, h = renderer.domElement.clientHeight; const v = new THREE.Vector3();
+            labelEls.forEach(({ el, pos }) => {
+                if (!pos || !S.layers.lbl) { el.style.display = 'none'; return; }
+                v.copy(pos).project(camera);
+                if (v.z > 1 || v.z < -1) { el.style.display = 'none'; return; }
+                const dist = camera.position.distanceTo(pos);
+                el.style.display = 'flex'; el.style.opacity = Math.max(0, Math.min(1, 1.25 - (dist - 22) / 22));
+                el.style.transform = `translate(${(v.x * .5 + .5) * w}px,${(-v.y * .5 + .5) * h}px) translate(-50%,-50%)`;
+            });
+        }
+        function flyTo(p, t, dur = 1000) {
+            if (!THREE || !camera) return;
+            tween = { t0: performance.now(), dur, p0: camera.position.clone(), p1: new THREE.Vector3(...p), g0: controls.target.clone(), g1: new THREE.Vector3(...t) };
+        }
+        function flyToComp(c) { if (S.view !== '3d' || !THREE) return; flyTo([c.x + (c.rot === Math.PI ? -4 : 4) * .6, 4.5, c.z + (c.rot === Math.PI ? -7 : 7)], [c.x, 2.2, c.z]); }
+        document.querySelectorAll('[data-cam]').forEach(b => b.onclick = () => { const k = CAM[b.dataset.cam]; flyTo(k.p, k.t); });
+
+        /* ================= 2D ================= */
+        function build2D() {
+            const nodes = comps.filter(c => c.p2);
+            const cols = [[90, 'HOST'], [330, 'SAN FABRIC A / B'], [580, 'SVC'], [830, 'STORAGE']];
+            const nw = 130, nh = 44;
+            let s = `<svg viewBox="0 0 920 540" preserveAspectRatio="xMidYMid meet"><defs>`;
+            links.forEach(l => { const a = byId(l.a), b = byId(l.b); if (!a.p2 || !b.p2) return; const x1 = a.p2[0] + nw / 2, y1 = a.p2[1], x2 = b.p2[0] - nw / 2, y2 = b.p2[1], xm = (x1 + x2) / 2; l.d = `M${x1} ${y1} C${xm} ${y1} ${xm} ${y2} ${x2} ${y2}`; s += `<path id="p-${l.id}" d="${l.d}"/>`; });
+            s += `</defs>`;
+            cols.forEach(([x, t]) => s += `<text class="hdr" x="${x}" y="22" text-anchor="middle">${t}</text>`);
+            links.forEach(l => {
+                if (!l.d) return; const col = { A: '#22d3ee', B: '#fb923c', S: '#a78bfa' }[l.f];
+                s += `<path class="lk ${l.f}" id="k-${l.id}" d="${l.d}"/>`;
+                [0, 1, 2].forEach(k => s += `<circle class="pk pk-${l.id}" r="3.6" fill="${col}"><animateMotion dur="3.2s" begin="${-k * 1.07}s" repeatCount="indefinite"><mpath href="#p-${l.id}"/></animateMotion></circle>`);
+            });
+            nodes.forEach(c => {
+                const [x, y] = c.p2;
+                s += `<g class="n" data-id="${c.id}" style="color:${c.color}"><rect x="${x - nw / 2}" y="${y - nh / 2}" width="${nw}" height="${nh}" rx="9" stroke="${c.color}"/><text x="${x}" y="${y - 4}" text-anchor="middle" font-size="13" font-weight="bold">${c.short}</text><text id="s2-${c.id}" x="${x}" y="${y + 12}" text-anchor="middle" font-size="10" fill="#6f8fae"></text></g>`;
+            });
+            s += `<g font-size="11" fill="#6f8fae" font-family="Share Tech Mono"><text x="20" y="515">━ Fabric A</text><text x="110" y="515" fill="#fb923c">━ Fabric B</text><text x="205" y="515" fill="#a78bfa">━ Storage</text><text x="290" y="515" fill="#ef4444">┅ Putus</text><text x="900" y="515" text-anchor="end">Disederhanakan: tiap SVC melayani separuh host</text></g></svg>`;
+            $('#svgWrap').innerHTML = s;
+            $('#svgWrap').addEventListener('click', e => { const n = e.target.closest('.n'); select(n ? n.dataset.id : null); });
+            update2D();
+        }
+        function update2D() {
+            if (!$('#svgWrap svg')) return;
+            links.forEach(l => { if (!l.d) return; const up = linkUp(l); const k = document.getElementById('k-' + l.id); if (k) k.classList.toggle('down', !up); document.querySelectorAll('.pk-' + l.id).forEach(p => p.classList.toggle('off', !up)); });
+            comps.filter(c => c.p2).forEach(c => {
+                const st = statusOf(c); const n = document.querySelector(`.n[data-id="${c.id}"]`);
+                if (n) n.classList.toggle('bad', st.k === 'bad');
+                const t = document.getElementById('s2-' + c.id); if (t) { t.textContent = st.k === 'bad' ? 'GANGGUAN' : c.kind === 'host' ? `${hostPaths(c.id)}/2 jalur` : c.kind === 'fabric' ? `load ${Math.round(S.failed.has(c.id) ? 0 : fabLoad(c.fab))}%` : c.kind === 'storage' ? `${c.used}% terpakai` : 'online'; }
+            });
+        }
+
+        /* ================= VIEW TOGGLE ================= */
+        function setView(v) {
+            if (v === '3d' && !THREE) { addAlert('WARN', 'Mode 3D butuh Three.js dari CDN (perlu internet). Memakai mode 2D.'); v = '2d'; }
+            S.view = v;
+            $('#v3').classList.toggle('on', v === '3d'); $('#v2').classList.toggle('on', v === '2d');
+            $('#three').style.display = v === '3d' ? 'block' : 'none';
+            $('#svgWrap').style.display = v === '2d' ? 'block' : 'none';
+            $('#labels').style.display = v === '3d' ? 'block' : 'none';
+            $('#camBar').style.display = v === '3d' ? 'flex' : 'none';
+            $('#lyAir').disabled = $('#lyPwr').disabled = $('#lyLbl').disabled = v === '2d';
+            if (v === '3d') resize3D();
+        }
+        $('#v3').onclick = () => setView('3d'); $('#v2').onclick = () => setView('2d');
+        $('#btnPanel').onclick = () => $('#left').classList.toggle('open');
+        [['#lyFc', 'fc'], ['#lyAir', 'air'], ['#lyPwr', 'pwr'], ['#lyLbl', 'lbl']].forEach(([s, k]) => $(s).onchange = e => { S.layers[k] = e.target.checked; refreshVisuals(); });
+        addEventListener('keydown', e => { if (e.key === 'Escape') { select(null); endTour(); } });
+
+        /* ================= TOUR ================= */
+        const TOUR = [
+            { t: '1 · Aplikasi menulis data', d: 'Aplikasi di host (IBM Power/Z) menulis data ke sebuah LUN. Driver HBA mengemas perintah SCSI menjadi frame Fibre Channel.', ids: ['host-01'], cam: { p: [-14, 6, 3], t: [-10, 2, -10] } },
+            { t: '2 · Dua jalur, dua fabric', d: 'Setiap host punya 2 HBA: satu ke Fabric A (cyan), satu ke Fabric B (oranye). Dua jalur terpisah inilah dasar multipathing.', ids: ['host-01', 'fab-a1', 'fab-b1'], cam: { p: [-16, 9, 5], t: [-9, 3, -8] } },
+            { t: '3 · Switch & zoning', d: 'Switch FC meneruskan frame ke tujuan. Zoning membatasi host mana yang boleh melihat storage mana, jadi keamanan dan isolasi terjaga.', ids: ['fab-a1', 'fab-b1', 'fab-a2', 'fab-b2'], cam: { p: [0, 12, 12], t: [0, 3, -6] } },
+            { t: '4 · Virtualisasi (SVC)', d: 'SAN Volume Controller menggabungkan banyak array menjadi pool dan menyajikan volume ke host. Host tidak perlu tahu array di belakangnya.', ids: ['svc-01', 'svc-02'], cam: { p: [0, 8, 6], t: [0, 2.5, -6] } },
+            { t: '5 · Storage array', d: 'Data akhirnya ditulis ke FlashSystem (all-flash) atau DS8000 (enterprise) dengan perlindungan RAID. Coba "Gangguan Fabric A" untuk melihat failover.', ids: ['fs1', 'fs2', 'ds8a', 'ds8b'], cam: { p: [-4, 8, 10], t: [-4, 2, -1] } },
+            { t: '6 · Backup ke tape', d: 'Salinan berkala dikirim ke tape library untuk arsip jangka panjang dan perlindungan ransomware. Tamat — coba simulasi gangguan sendiri.', ids: ['tape-01', 'tape-02'], cam: { p: [12, 8, 8], t: [8, 2, -1] } }
+        ];
+        function showTour() {
+            const s = TOUR[S.tourStep]; const box = $('#tour');
+            if (!s) { box.style.display = 'none'; S.hl.clear(); refreshSel(); return; }
+            box.style.display = 'block';
+            box.innerHTML = `<h4>${s.t}</h4><p>${s.d}</p><div class="nav"><button id="tP">◀ Sebelumnya</button><button id="tN">${S.tourStep === TOUR.length - 1 ? 'Selesai' : 'Lanjut ▶'}</button><button id="tX">✕</button><span>${S.tourStep + 1}/${TOUR.length}</span></div>`;
+            S.hl = new Set(s.ids); refreshSel();
+            if (S.view === '3d') flyTo(s.cam.p, s.cam.t, 1200);
+            document.querySelectorAll('.n').forEach(n => n.style.opacity = S.hl.has(n.dataset.id) ? 1 : .45);
+            $('#tP').onclick = () => { if (S.tourStep > 0) { S.tourStep--; showTour(); } };
+            $('#tN').onclick = () => { if (S.tourStep < TOUR.length - 1) { S.tourStep++; showTour(); } else endTour(); };
+            $('#tX').onclick = endTour;
+        }
+        function endTour() { S.tourStep = -1; showTour(); document.querySelectorAll('.n').forEach(n => n.style.opacity = 1); }
+        $('#btnTour').onclick = () => { S.tourStep = 0; select(null); showTour(); $('#left').classList.remove('open'); };
+
+        /* ================= BOOT ================= */
+        build2D();
+        if (THREE) { init3D(); buildLabels(); animate(); setView('3d'); }
+        else { setView('2d'); $('#v3').disabled = true; }
+        recompute();
+    </script>
+</body>
+
+</html>
