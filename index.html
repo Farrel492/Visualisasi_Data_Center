@@ -32,6 +32,9 @@ header h1{margin:0;font-size:16px;font-weight:600;white-space:nowrap}
 .ts{display:none}
 .tg{display:flex;gap:6px}.tg button{background:transparent;border:1px solid var(--ln);border-radius:3px;padding:5px 12px;cursor:pointer;color:var(--mut)}
 .tg button[aria-pressed="true"]{color:var(--tx);background:var(--pn2);border-color:#566170}
+#tgS{display:flex;align-items:center;gap:6px}#tgS svg{width:16px;height:16px;flex:none}#tgS .wv{transition:opacity .2s}#tgS[aria-pressed="false"] .wv{opacity:0}
+#tgS.wait{animation:pulse 1.4s ease-in-out infinite;border-color:var(--amb,#e0a43a)}
+.s-snd .row{display:flex;align-items:center;gap:8px;margin-top:6px;color:var(--mut)}.s-snd input[type=range]{flex:1;accent-color:#5aa9ff}
 
 #app{--cl:292px;--cr:372px;display:grid;grid-template-columns:var(--cl) minmax(0,1fr) var(--cr);height:calc(100% - 50px);transition:grid-template-columns .2s}
 #app.hideL{--cl:0px}#app.hideR{--cr:0px}
@@ -187,7 +190,7 @@ ul.pl{margin:0;padding-left:18px}
   #left.open,#app.hideL #left.open{transform:none;visibility:visible;transition:transform .22s;box-shadow:8px 0 30px #000a}
   #left>section{flex:none;margin:0!important}
   .dhead{display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:2;order:0;flex:none;background:var(--pn);padding:8px 0;border-bottom:1px solid var(--ln);margin-bottom:-6px}
-  .s-learn{order:1}.s-scn{order:2}.s-lay{order:3}.s-alert{order:4}.s-env{order:5}.s-pwr{order:6}.s-san{order:7}
+  .s-learn{order:1}.s-scn{order:2}.s-lay{order:3}.s-snd{order:3}.s-alert{order:4}.s-env{order:5}.s-pwr{order:6}.s-san{order:7}
   #scrim{display:block;position:absolute;inset:0;z-index:19;background:#000b;opacity:0;pointer-events:none;transition:opacity .2s}
   #scrim.on{opacity:1;pointer-events:auto}
 
@@ -252,7 +255,7 @@ ul.pl{margin:0;padding-left:18px}
   <div class="views" role="tablist">
     <button id="v3" class="on"><span class="tl">Ruangan 3D</span><span class="ts">3D</span></button><button id="vS"><span class="tl">Topologi SAN</span><span class="ts">SAN</span></button><button id="vP"><span class="tl">Diagram daya</span><span class="ts">Daya</span></button>
   </div>
-  <div class="tg"><button id="tgL" aria-pressed="true" title="Tampilkan atau sembunyikan panel kontrol">Kontrol</button><button id="tgR" aria-pressed="true" title="Tampilkan atau sembunyikan panel detail">Detail</button></div>
+  <div class="tg"><button id="tgL" aria-pressed="true" title="Tampilkan atau sembunyikan panel kontrol">Kontrol</button><button id="tgR" aria-pressed="true" title="Tampilkan atau sembunyikan panel detail">Detail</button><button id="tgS" aria-pressed="true" title="Suara kipas dan alarm: nyala atau mati" aria-label="Suara"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><g class="wv"><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></g></svg><span class="tl">Suara</span></button></div>
   <span id="clock"></span>
 </header>
 <div id="app" class="sh-closed">
@@ -293,6 +296,12 @@ ul.pl{margin:0;padding-left:18px}
       <button class="btn" id="sCr">Matikan CRAC-1</button>
       <button class="btn" id="sCrAll">Matikan semua CRAC</button>
       <button class="btn go" id="sRst">Pulihkan semua</button>
+    </section>
+    <section class="s-snd">
+      <h3>Suara</h3>
+      <label class="chk"><input type="checkbox" id="sndOn" checked> Suara kipas dan alarm</label>
+      <div class="row"><span>Volume</span><input type="range" id="sndVol" min="0" max="100" value="70" aria-label="Volume"></div>
+      <div class="row" style="font-size:11px">Matikan jika terganggu. Pilihan diingat di perangkat ini.</div>
     </section>
     <section class="s-lay">
       <h3>Lapisan</h3>
@@ -683,13 +692,97 @@ function syncAlerts(){
   const c=conds();
   for(const k in c)if(!prevC[k]||prevC[k].msg!==c[k].msg){addAlert(c[k].lvl,c[k].msg);if(c[k].lvl==='CRIT'&&!prevC[k])S.ack=false;}
   for(const k in prevC)if(!c[k])addAlert('INFO',prevC[k].ok);
+  const newWarn=Object.keys(c).some(k=>c[k].lvl==='WARN'&&!prevC[k]);
   prevC=c;
   const crit=Object.values(c).filter(x=>x.lvl==='CRIT');
   S.alarm=crit.length>0;
   const al=$('#alarm');al.style.display=S.alarm?'flex':'none';
   $('#stage').classList.toggle('alarm',S.alarm);$('#stage').classList.toggle('ack',S.ack);
   if(S.alarm)$('#alarmTxt').textContent=crit[crit.length-1].msg+(crit.length>1?`  (+${crit.length-1} alarm lain, lihat log alert)`:'');
+  const emerg=!!(c.io||Object.keys(c).some(k=>k.startsWith('pw'))||(c.temp&&c.temp.lvl==='CRIT'));
+  const lvl=!S.alarm?(Object.values(c).some(x=>x.lvl==='WARN')?1:0):(emerg?3:2);
+  SND.level(lvl,S.ack,newWarn);SND.upd();
 }
+
+
+/* ================= SUARA (Web Audio, tanpa file) ================= */
+const SND=(()=>{
+  let AC=null,master=null,fanG=null,fanF=null,blow=null,loop=null,mode=null,lastLvl=0;
+  const st={on:true,vol:.7};
+  try{st.on=localStorage.getItem('dc-snd')!=='off';const v=parseFloat(localStorage.getItem('dc-vol'));if(v>=0&&v<=1)st.vol=v;}catch(e){}
+  const save=()=>{try{localStorage.setItem('dc-snd',st.on?'on':'off');localStorage.setItem('dc-vol',st.vol);}catch(e){}};
+  function ui(){
+    const b=$('#tgS');b.setAttribute('aria-pressed',st.on);
+    b.classList.toggle('wait',st.on&&(!AC||AC.state!=='running'));
+    b.title=st.on?(AC&&AC.state==='running'?'Suara nyala. Ketuk untuk mematikan.':'Ketuk layar sekali untuk mengaktifkan suara.'):'Suara mati. Ketuk untuk menyalakan.';
+    $('#sndOn').checked=st.on;$('#sndVol').value=Math.round(st.vol*100);
+  }
+  function build(){
+    const C=window.AudioContext||window.webkitAudioContext;if(!C)return false;
+    AC=new C();master=AC.createGain();master.gain.value=0;
+    const comp=AC.createDynamicsCompressor();master.connect(comp);comp.connect(AC.destination);
+    // derau kipas (brown noise) + dengung blower
+    const len=AC.sampleRate*3,buf=AC.createBuffer(1,len,AC.sampleRate),d=buf.getChannelData(0);let l=0;
+    for(let i=0;i<len;i++){const w=Math.random()*2-1;l=(l+.02*w)/1.02;d[i]=l*3.5;}
+    const src=AC.createBufferSource();src.buffer=buf;src.loop=true;
+    fanF=AC.createBiquadFilter();fanF.type='lowpass';fanF.frequency.value=600;fanF.Q.value=.7;
+    const hp=AC.createBiquadFilter();hp.type='highpass';hp.frequency.value=60;
+    fanG=AC.createGain();fanG.gain.value=0;
+    src.connect(fanF);fanF.connect(hp);hp.connect(fanG);fanG.connect(master);
+    blow=[];[[96,'sine',.5],[192,'triangle',.22],[1180,'sine',.05]].forEach(([f,t,g])=>{const o=AC.createOscillator();o.type=t;o.frequency.value=f;const og=AC.createGain();og.gain.value=g;o.connect(og);og.connect(fanG);o.start();blow.push(o);});
+    src.start();return true;
+  }
+  function wake(){
+    if(!st.on)return;
+    if(!AC&&!build())return;
+    if(AC.state!=='running')AC.resume().then(()=>{ui();upd();}).catch(()=>{});
+    ui();upd();
+  }
+  function fanLevel(){
+    const fr=racks.filter(r=>r.powered).length/racks.length,cr=cracs.filter(c=>c.powered).length/6;
+    const load=.65*fr+.35*cr,hot=clamp((S.temp-24)/8,0,1);
+    return{g:.03+.30*load+.10*hot,f:380+700*load+500*hot,r:1+.06*hot+.03*load};
+  }
+  function upd(){
+    if(!AC)return;const t=AC.currentTime,on=st.on&&AC.state==='running'&&!document.hidden;
+    master.gain.setTargetAtTime(on?st.vol:0,t,.15);
+    const L=fanLevel();fanG.gain.setTargetAtTime(L.g,t,1.2);fanF.frequency.setTargetAtTime(L.f,t,1.2);
+    blow.forEach((o,i)=>o.frequency.setTargetAtTime([96,192,1180][i]*L.r,t,1.5));
+    if(!on&&loop)stopLoop();
+  }
+  function tone(f0,f1,t0,dur,type,vol){
+    const o=AC.createOscillator(),g=AC.createGain(),lp=AC.createBiquadFilter();
+    o.type=type;lp.type='lowpass';lp.frequency.value=3200;
+    o.frequency.setValueAtTime(f0,t0);if(f1!==f0)o.frequency.exponentialRampToValueAtTime(f1,t0+dur);
+    g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+.015);g.gain.setValueAtTime(vol,t0+dur-.04);g.gain.linearRampToValueAtTime(0,t0+dur);
+    o.connect(lp);lp.connect(g);g.connect(master);o.start(t0);o.stop(t0+dur+.02);
+  }
+  const PAT={
+    crit:{per:1000,play:t=>{tone(660,660,t,.22,'square',.2);tone(880,880,t+.25,.22,'square',.2);tone(660,660,t+.5,.22,'square',.2);tone(880,880,t+.75,.22,'square',.2);}},
+    emerg:{per:1000,play:t=>{tone(500,1050,t,.5,'sawtooth',.26);tone(1050,500,t+.5,.5,'sawtooth',.26);}}
+  };
+  function stopLoop(){if(loop){clearTimeout(loop);loop=null;}mode=null;}
+  function startLoop(m){
+    if(mode===m)return;stopLoop();mode=m;
+    const run=()=>{if(!AC||AC.state!=='running'||!st.on||document.hidden||mode!==m){stopLoop();return;}PAT[m].play(AC.currentTime+.03);loop=setTimeout(run,PAT[m].per);};run();
+  }
+  // lvl: 0 aman, 1 peringatan, 2 kritis, 3 darurat
+  function level(lvl,acked,newWarn){
+    if(!AC||AC.state!=='running'||!st.on||document.hidden){if(mode)stopLoop();lastLvl=lvl;return;}
+    if(newWarn&&lvl<2&&!acked)tone(880,880,AC.currentTime+.02,.18,'sine',.25);
+    if(lvl>=2&&!acked)startLoop(lvl===3?'emerg':'crit');else stopLoop();
+    if(lvl===0&&lastLvl>=2){const t=AC.currentTime+.05;tone(523,523,t,.16,'sine',.22);tone(784,784,t+.18,.28,'sine',.22);}
+    lastLvl=lvl;
+  }
+  function set(on){st.on=on;save();if(on)wake();else{stopLoop();upd();}ui();}
+  $('#tgS').onclick=()=>set(!st.on);
+  $('#sndOn').onchange=e=>set(e.target.checked);
+  $('#sndVol').oninput=e=>{st.vol=e.target.value/100;save();upd();if(!st.on&&st.vol>0)set(true);};
+  ['pointerdown','keydown','touchend'].forEach(ev=>addEventListener(ev,wake,{passive:true}));
+  document.addEventListener('visibilitychange',()=>{upd();if(!document.hidden)syncAlerts();});
+  ui();
+  return{level,upd,wake,st,get ctx(){return AC;},get mode(){return mode;}};
+})();
 
 /* ================= SKENARIO ================= */
 function refresh(){computeAll();syncAlerts();paint();}
@@ -710,7 +803,7 @@ $('#sFB').onclick=()=>toggleFabric('B');
 $('#sCr').onclick=()=>toggleFail(cracs[0]);
 $('#sCrAll').onclick=()=>{const all=cracs.every(c=>c.off);cracs.forEach(c=>c.off=!all);refresh();};
 $('#sRst').onclick=resetAll;
-$('#clrAl').onclick=()=>emptyAlerts();
+$('#clrAl').onclick=()=>{emptyAlerts();S.ack=true;syncAlerts();};
 $('#ackBtn').onclick=()=>{S.ack=true;syncAlerts();};
 
 function tick(){
@@ -1450,7 +1543,7 @@ setView(THREE?'3d':'san');
 select(null);applySheet();syncPanelUI();updateNav();
 if(COARSE&&THREE){let seen=false;try{seen=!!sessionStorage.getItem('dc-hint');}catch(e){}
   if(!seen){showToast(PORTRAIT_MQ.matches?'Seret: putar. Cubit: zoom. Ketuk rack: detail. Tips: putar HP ke posisi mendatar untuk ruangan yang lebih luas.':'Seret: putar. Cubit: zoom. Ketuk rack: detail.',8000);try{sessionStorage.setItem('dc-hint','1');}catch(e){}}}
-window.dc={S,setSheet,isCompact,presetPos,racks,resetView,setPanel,panelOpen,comps,select,flyAisle,flyPreset,setMains,toggleFabric,resetAll,tick,refresh,setView,showTour,get camera(){return camera;},get controls(){return controls;}};
+window.dc={SND,S,setSheet,isCompact,presetPos,racks,resetView,setPanel,panelOpen,comps,select,flyAisle,flyPreset,setMains,toggleFabric,resetAll,tick,refresh,setView,showTour,get camera(){return camera;},get controls(){return controls;}};
 </script>
 </body>
 </html>
