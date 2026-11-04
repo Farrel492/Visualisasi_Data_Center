@@ -74,7 +74,8 @@ label.chk{display:flex;gap:8px;align-items:center;padding:3px 0;cursor:pointer}
 #left .hrow{margin:0 0 6px}
 .link{background:none;border:0;color:#a6c8ff;cursor:pointer;padding:2px 0;text-decoration:underline;text-underline-offset:2px}
 #alerts{display:flex;flex-direction:column;gap:4px;max-height:260px;overflow-y:auto}
-#alerts .none{color:var(--mut);padding:6px 0}
+#alerts .none,#alog .none{color:var(--mut);padding:6px 0}
+#alog{display:flex;flex-direction:column;gap:4px;max-height:220px;overflow-y:auto}
 .al{border-left:3px solid var(--blue);background:var(--pn2);padding:5px 8px;font-size:12px}
 .al.WARN{border-color:var(--warn)}.al.CRIT{border-color:var(--bad);background:#2b1a1d}
 .al small{display:block;color:var(--mut)}
@@ -105,6 +106,14 @@ label.chk{display:flex;gap:8px;align-items:center;padding:3px 0;cursor:pointer}
 #cards .chd{font-size:11.5px;color:var(--mut);line-height:1.35;max-width:84px}
 #cards .chd b{display:block;color:var(--tx);font-weight:600}
 #rdRing{position:fixed;width:76px;height:76px;margin:-38px 0 0 -38px;border:3px solid #78a9ff;border-radius:50%;pointer-events:none;z-index:59;display:none;box-shadow:0 0 18px #78a9ff,inset 0 0 12px #78a9ff55;animation:pulse .8s ease-in-out infinite}
+.btn.sm{padding:5px 10px;margin:0}
+#walkBar{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:6;display:none;width:max-content;max-width:calc(100% - 24px);background:#111418f2;border:1px solid var(--blue);border-radius:6px;padding:8px 10px;gap:12px;align-items:center}
+#walkBar .wt{font-size:13px;line-height:1.45;max-width:520px}#walkBar .wt b{display:block;color:#a6c8ff;font-size:11.5px;letter-spacing:.02em}
+#app.walking #walkBar{display:flex}#app.walking #nav,#app.walking .panhint{display:none!important}
+#zinfo{position:absolute;left:12px;top:86px;width:320px;max-width:calc(100% - 24px);z-index:4;background:#111418ee;border:1px solid var(--ln);border-left:3px solid #f1a82c;border-radius:4px;padding:8px 28px 8px 10px;font-size:12.5px;line-height:1.5;display:none}
+#zinfo h4{margin:0 0 4px;font-size:13px;cursor:default}#zinfo p{margin:0;color:#c8d0da}
+#zinfo .zd{display:flex;gap:4px;margin-bottom:6px}#zinfo .zd i{flex:1;height:4px;border-radius:2px;background:#2d343d}#zinfo .zd i.on{background:#f1a82c}#zinfo .zd i.done{background:#42be65}
+#zinfo .x{position:absolute;right:6px;top:3px;background:none;border:0;color:var(--mut);cursor:pointer;font-size:18px;line-height:1;padding:2px 4px}
 .lbl.zone{font-size:12.5px;font-weight:600;padding:3px 10px;background:#262012ee;border-color:#6b5a2a;color:#ffe3a3}
 #svgWrap{display:none;padding:12px;overflow:auto}
 #stage.alarm #svgWrap{padding-top:58px}
@@ -212,7 +221,7 @@ ul.pl{margin:0;padding-left:18px}
   #left.open,#app.hideL #left.open{transform:none;visibility:visible;transition:transform .22s;box-shadow:8px 0 30px #000a}
   #left>section{flex:none;margin:0!important}
   .dhead{display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:2;order:0;flex:none;background:var(--pn);padding:8px 0;border-bottom:1px solid var(--ln);margin-bottom:-6px}
-  .s-learn{order:1}.s-scn{order:2}.s-lay{order:3}.s-snd{order:3}.s-alert{order:4}.s-env{order:5}.s-pwr{order:6}.s-san{order:7}
+  .s-learn{order:1}.s-scn{order:2}.s-sec{order:2}.s-log{order:4}.s-lay{order:3}.s-snd{order:3}.s-alert{order:4}.s-env{order:5}.s-pwr{order:6}.s-san{order:7}
   #scrim{display:block;position:absolute;inset:0;z-index:19;background:#000b;opacity:0;pointer-events:none;transition:opacity .2s}
   #scrim.on{opacity:1;pointer-events:auto}
 
@@ -237,6 +246,9 @@ ul.pl{margin:0;padding-left:18px}
   #tour{top:auto;bottom:calc(var(--sheet,0px) + 8px);width:calc(100% - 16px);max-height:48%;overflow-y:auto;padding:10px 12px}
   #app.touring #nav{display:none!important}
   #toast{bottom:auto;top:108px}
+  #app.hasz #toast{top:auto;bottom:calc(var(--sheet,0px) + 14px)}
+  #zinfo{top:100px;left:8px;right:8px;width:auto;padding:6px 28px 6px 10px}#zinfo p{display:none;margin-top:4px}#zinfo.open p{display:block}#zinfo h4{margin:0}#zinfo .zd{margin-bottom:4px}
+  #walkBar{bottom:calc(var(--sheet,0px) + 10px);left:8px;right:8px;transform:none;width:auto}#walkBar .wt{font-size:12.5px}
 
   #svgWrap{padding:50px 8px 8px;-webkit-overflow-scrolling:touch}
   #stage.alarm #svgWrap{padding-top:104px}
@@ -327,6 +339,17 @@ ul.pl{margin:0;padding-left:18px}
       <div class="row"><span>Volume</span><input type="range" id="sndVol" min="0" max="100" value="70" aria-label="Volume"></div>
       <div class="row" style="font-size:11px">Matikan jika terganggu. Pilihan diingat di perangkat ini.</div>
     </section>
+    <section class="s-sec">
+      <h3>Keamanan fisik</h3>
+      <button class="btn go" id="btnWalk">Masuk sebagai teknisi (tur jalan)</button>
+      <button class="btn" id="kUnk">Kartu tidak dikenal di gerbang 2</button>
+      <button class="btn" id="kTamu">Tamu mencoba masuk ruang transit</button>
+      <button class="btn" id="kTail">Tailgating di gerbang 2</button>
+      <button class="btn" id="kHold">Pintu transit dibiarkan terbuka</button>
+      <button class="btn" id="kForce">Pintu server room dipaksa</button>
+      <button class="btn" id="kRack">Rack dibuka tanpa izin</button>
+      <button class="btn go" id="kRst">Pulihkan keamanan</button>
+    </section>
     <section class="s-lay">
       <h3>Lapisan</h3>
       <label class="chk"><input type="checkbox" id="lyFc" checked> Kabel Fibre Channel dan paket data</label>
@@ -338,6 +361,10 @@ ul.pl{margin:0;padding-left:18px}
     <section class="s-learn">
       <h3>Belajar</h3>
       <button class="btn go" id="btnTour">Mulai tur: perjalanan sebuah data</button>
+    </section>
+    <section class="s-log">
+      <div class="hrow"><h3>Log akses</h3><button class="link" id="clrLog">Bersihkan</button></div>
+      <div id="alog"><div class="none">Belum ada aktivitas.</div></div>
     </section>
     <section class="s-alert">
       <div class="hrow"><h3>Alert</h3><button class="link" id="clrAl">Bersihkan</button></div>
@@ -359,6 +386,8 @@ ul.pl{margin:0;padding-left:18px}
     <div id="three"></div>
     <div id="labels"></div>
     <div id="svgWrap"><div class="panhint">Geser untuk melihat seluruh diagram. Ketuk kotak untuk detail.</div><div id="gSan"></div><div id="gPwr" style="display:none"></div></div>
+    <div id="zinfo"><button class="x" aria-label="Tutup">&times;</button><div class="zd"><i></i><i></i><i></i><i></i><i></i></div><h4></h4><p></p></div>
+    <div id="walkBar"><div class="wt" id="wTxt"></div><button class="btn sm" id="wStop">Hentikan</button></div>
     <div id="hint">Seret untuk memutar. Scroll untuk zoom. Klik rack atau unit untuk detail.</div>
     <div id="nav"></div>
     <button id="edgeL" class="edge l" aria-label="Sembunyikan panel kontrol">&lsaquo;</button><button id="edgeR" class="edge r" aria-label="Sembunyikan panel detail">&rsaquo;</button>
@@ -799,12 +828,22 @@ const SND=(()=>{
     if(lvl===0&&lastLvl>=2){const t=AC.currentTime+.05;tone(523,523,t,.16,'sine',.22);tone(784,784,t+.18,.28,'sine',.22);}
     lastLvl=lvl;
   }
+  let nbuf=null;
+  function step(sf,t){
+    if(!nbuf){nbuf=AC.createBuffer(1,Math.round(AC.sampleRate*.2),AC.sampleRate);const d=nbuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;}
+    const src=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();src.buffer=nbuf;src.playbackRate.value=.9+Math.random()*.25;
+    f.type='bandpass';f.frequency.value=sf==='out'?900:sf==='tile'?2200:520;f.Q.value=sf==='tile'?1.2:.8;
+    const v=(sf==='tile'?.55:sf==='out'?.5:.4)*(.8+Math.random()*.4);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+(sf==='out'?.17:.1));
+    src.connect(f);f.connect(g);g.connect(master);src.start(t);src.stop(t+.22);
+    if(sf==='raised')tone(85,60,t,.09,'sine',.12);
+  }
   function fx(kind){
     if(!AC||AC.state!=='running'||!st.on||document.hidden)return;const t=AC.currentTime+.01;
     if(kind==='scan')tone(1500,1500,t,.07,'sine',.2);
     else if(kind==='ok'){tone(988,988,t,.1,'sine',.22);tone(1319,1319,t+.12,.2,'sine',.22);}
     else if(kind==='deny'){tone(220,220,t,.2,'square',.22);tone(180,180,t+.24,.3,'square',.22);}
     else if(kind==='door')tone(150,100,t,.4,'triangle',.14);
+    else if(kind.slice(0,5)==='step-')step(kind.slice(5),t);
   }
   function set(on){st.on=on;save();if(on)wake();else{stopLoop();upd();}ui();}
   $('#tgS').onclick=()=>set(!st.on);
@@ -823,7 +862,7 @@ function setMains(on){S.mains=on;if(!on)showPower();refresh();}
 function toggleFail(c){c.off=!c.off;refresh();}
 function toggleFabric(f){const list=f==='A'?FA:FB;const all=list.every(r=>r.off);list.forEach(r=>r.off=!all);refresh();}
 function resetAll(){
-  S.mains=true;S.genManual=false;S.gen=false;S.genT=0;S.failA=S.failB=false;S.upsA=S.upsB=100;S.temp=22.2;S.ack=false;S.secAlert=null;clearTimeout(SEC.alT);
+  S.mains=true;S.genManual=false;S.gen=false;S.genT=0;S.failA=S.failB=false;S.upsA=S.upsB=100;S.temp=22.2;S.ack=false;secRestore(true);
   racks.forEach(r=>r.off=false);cracs.forEach(c=>c.off=false);refresh();
 }
 $('#sMains').onclick=()=>setMains(!S.mains);
@@ -1124,7 +1163,7 @@ function init3D(){
   /* beacon alarm */
   [[-14.6,3.3,5.4],[14.6,3.3,5.4],[-14.6,3.3,-8.8],[14.6,3.3,-8.8]].forEach(p=>{const b=new THREE.Mesh(new THREE.SphereGeometry(.18,10,10),new THREE.MeshBasicMaterial({color:'#3a1a1d'}));b.position.set(...p);scene.add(b);beacons.push(b);});
 
-  buildSite();
+  buildSite();buildRackLocks();
   [[-17.4,2.9,3,12,9],[-25.3,3.1,3,18,20],[-36,3,3,12,12],[-67.5,3,1.5,14,12]].forEach(([x,y,z,d,i])=>{const L=new THREE.PointLight('#d6e6ff',i,d,2);L.position.set(x,y,z);L.userData.i=i;scene.add(L);(lights.pts=lights.pts||[]).push(L);});
 
   /* event */
@@ -1133,6 +1172,7 @@ function init3D(){
   el.addEventListener('pointerdown',e=>{ptrs.add(e.pointerId);maxPtr=Math.max(maxPtr,ptrs.size);if(ptrs.size===1)down={x:e.clientX,y:e.clientY,t:performance.now()};hideToast();});
   const endPtr=(e,cancel)=>{
     ptrs.delete(e.pointerId);if(ptrs.size>0)return;
+    if(W.active){down=null;maxPtr=0;return;}
     const d=down,mp=maxPtr;down=null;maxPtr=0;
     if(cancel||!d||mp>1)return;
     const tol=e.pointerType==='mouse'?6:12;
@@ -1305,10 +1345,11 @@ function animate(){
   requestAnimationFrame(animate);
   if(S.view!=='3d'||!renderer)return;
   if(!AIRC){AIRC=new THREE.Color('#78a9ff');AIRH=new THREE.Color('#ff7a3d');}
-  const t=performance.now()/1000;
+  const t=performance.now()/1000,fdt=Math.min(.1,(performance.now()-(animate.lt||performance.now()))/1000);animate.lt=performance.now();
   if(tw.t){const k=Math.min(1,(performance.now()-tw.t.t0)/tw.t.dur),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;camera.position.lerpVectors(tw.t.p0,tw.t.p1,e);controls.target.lerpVectors(tw.t.g0,tw.t.g1,e);if(k>=1)tw.t=null;}
-  controls.update();
-  if(!tw.t){const tg=controls.target,cx=clamp(tg.x,-82,24),cz=clamp(tg.z,-24,28),cy=clamp(tg.y,-1,10);if(cx!==tg.x||cz!==tg.z||cy!==tg.y){camera.position.x+=cx-tg.x;camera.position.y+=cy-tg.y;camera.position.z+=cz-tg.z;tg.set(cx,cy,cz);}}
+  walkUpdate(fdt);if(!W.active)controls.update();
+  if(S.zoneInfo&&S.camMode==='zone'&&(animate.zc=(animate.zc||0)+1)%20===0){const zz=zoneAt(controls.target.x);if(zz!==S.zoneInfo)showZone(zz);}
+  if(!tw.t&&!W.active){const tg=controls.target,cx=clamp(tg.x,-82,24),cz=clamp(tg.z,-24,28),cy=clamp(tg.y,-1,10);if(cx!==tg.x||cz!==tg.z||cy!==tg.y){camera.position.x+=cx-tg.x;camera.position.y+=cy-tg.y;camera.position.z+=cz-tg.z;tg.set(cx,cy,cz);}}
   if(t-lastLed>.12){lastLed=t;const c=new THREE.Color();
     ledInfo.forEach((d,ix)=>{const r=d.r;let hex;
       if(!r.powered)hex='#050607';
@@ -1317,7 +1358,7 @@ function animate(){
       c.set(hex);ledMesh.setColorAt(ix,c);});
     ledMesh.instanceColor.needsUpdate=true;}
   updateLinks(t);if(S.layers.pwr)updatePower(t);updateSite(t);
-  {const wide=S.camMode==='site'||S.camMode==='zone'||!!tw.t||camera.position.x<-17,sc=camScale();
+  {const wide=S.camMode==='site'||S.camMode==='zone'||S.camMode==='walk'||!!tw.t||camera.position.x<-17,sc=camScale();
    scene.fog.near+=((wide?170:40*sc)-scene.fog.near)*.08;scene.fog.far+=((wide?460:95*sc)-scene.fog.far)*.08;controls.maxDistance=wide?150*sc:55*sc;}
   const coolF=cracs.filter(c=>c.powered).length/6;
   const hotMix=clamp((S.temp-22)/10,0,1);
@@ -1328,7 +1369,7 @@ function animate(){
   const w=renderer.domElement.clientWidth,h=renderer.domElement.clientHeight,v=new THREE.Vector3();
   const compact=isCompact();
   labelEls.forEach(({el,pos,cls,id})=>{
-    if(!S.layers.lbl||(S.camMode==='zone'&&cls!=='zone')){el.style.display='none';return;}
+    if(!S.layers.lbl||S.camMode==='walk'||(S.camMode==='zone'&&cls!=='zone')){el.style.display='none';return;}
     v.copy(pos).project(camera);if(v.z>1||v.z<-1){el.style.display='none';return;}
     const dist=camera.position.distanceTo(pos);
     const limit=cls==='rack'?(S.sel===id?99:(compact?6.5:9)):cls==='zone'?(compact?95:130):cls==='sign'?60:id==='tray'?(compact?14:22):(compact?32:45);
@@ -1342,7 +1383,7 @@ const CAMS={site:{p:[-40,84,62],t:[-40,0,3]},over:{p:[0,26,23],t:[0,0,-2.4]},top
 function setCam(c){camera.position.set(...c.p);controls.target.set(...c.t);}
 function flyTo(p,t,dur=1100){if(!THREE||!camera)return;tw.t={t0:performance.now(),dur,p0:camera.position.clone(),p1:new THREE.Vector3(...p),g0:controls.target.clone(),g1:new THREE.Vector3(...t)};}
 let underSnap=null;
-function leaveUnder(){if(underSnap){S.layers.pwr=underSnap.pwr;S.layers.x=underSnap.x;$('#lyPwr').checked=S.layers.pwr;$('#lyX').checked=S.layers.x;underSnap=null;refreshVisuals();}}
+function leaveUnder(){hideZone();if(underSnap){S.layers.pwr=underSnap.pwr;S.layers.x=underSnap.x;$('#lyPwr').checked=S.layers.pwr;$('#lyX').checked=S.layers.x;underSnap=null;refreshVisuals();}}
 function flyAisle(a,dir){
   leaveUnder();S.aisle=a;S.dir=dir;S.camMode='aisle';updateNav();
   if(S.view!=='3d')setView('3d');
@@ -1529,6 +1570,7 @@ function secPass(id,opt){
   if(d.busy)return false;
   if(d.lock&&SEC.doors[d.lock].k>.02){showToast('Interlock: '+SEC.doors[d.lock].name+' masih terbuka, jadi pintu ini belum bisa dibuka.',4500);(d.readers||[]).forEach(r=>secReaderState(r,'deny',1400));SND.fx('deny');return false;}
   d.busy=true;if(d.msg)showToast(d.msg,6500);
+  if(!(d.readers||[]).length&&!opt.deny)accessLog('ok','Pengunjung/teknisi',d.name,'dibuka ('+(id==='g1'?'satpam':'sensor')+')');
   const rs=d.readers||[];let t=0;
   rs.forEach(r=>{secAt(t,()=>{secReaderState(r,'scan',900);SND.fx('scan');});t+=900;});
   if(opt.deny){secAt(t,()=>{rs.forEach(r=>secReaderState(r,'deny',1600));SND.fx('deny');if(opt.onDeny)opt.onDeny();});d.until=performance.now()+t+1800;return true;}
@@ -1545,12 +1587,18 @@ function updateSite(t){
     if(d.k!==d.target){d.k=d.target>d.k?Math.min(d.target,d.k+dt*d.sp):Math.max(d.target,d.k-dt*d.sp);d.anim(ease(d.k));}
     if(d.busy&&d.k===0&&d.target===0&&now>d.until)d.busy=false;
     d.lamp.material.color.set(d.k>.02||d.target?'#42be65':'#a8323a');}
+  for(const w of SEC.walkers){if(w.stop)continue;const x=w.g.position.x;
+    const dw=Math.min(.25,(now-(SEC.lastW||now))/1000);if(x<-38&&x+w.v*dw>=-38&&SEC.doors.g2.k<.3)continue;
+    w.g.position.x+=w.v*dw;
+    if(w.onX&&!w.fired&&w.g.position.x>=w.onX.x){w.fired=true;w.onX.fn(w);}
+    if(w.g.position.x>-27){w.g.visible=false;w.stop=true;}}
+  SEC.lastW=now;
   for(const id in SEC.readers){const r=SEC.readers[id];if(r.state!=='idle'&&now>r.until)r.state='idle';
     const c=r.hint>now&&r.state==='idle'?(Math.sin(now/110)>0?'#ffffff':'#78a9ff'):r.state==='scan'?(Math.sin(now/55)>0?'#f1a82c':'#6b4a12'):r.state==='ok'?'#42be65':r.state==='deny'?(Math.sin(now/90)>0?'#fa4d56':'#5a1a1e'):(Math.sin(t*2)>0?'#4589ff':'#1d3d70');
     r.led.material.color.set(c);}
   SEC.cams.forEach((l,i)=>l.material.color.set(Math.sin(t*3+i*1.7)>.55?'#fa4d56':'#3a1a1d'));
 }
-const CARDS={tech:{name:'Budi S.',role:'Teknisi',allow:['g2','d3','d4']},tamu:{name:'Tamu',role:'Pengunjung',allow:['g2']},unk:{name:'Tidak dikenal',role:'Kartu tidak terdaftar',allow:[]}};
+const CARDS={tech:{name:'Budi S.',role:'Teknisi',allow:['g2','d3','d4'],rack:true},tamu:{name:'Tamu',role:'Pengunjung',allow:['g2']},unk:{name:'Tidak dikenal',role:'Kartu tidak terdaftar',allow:[]}};
 function secHint(ids,ms){const n=performance.now()+(ms||2000);(ids||[]).forEach(i=>{const r=SEC.readers[i];if(r)r.hint=n;});}
 function secLocked(d){
   if(d.lock&&SEC.doors[d.lock].k>.02){showToast('Interlock: '+SEC.doors[d.lock].name+' masih terbuka, jadi pintu ini belum bisa dibuka.',4500);(d.readers||[]).forEach(r=>secReaderState(r,'deny',1400));SND.fx('deny');return true;}
@@ -1558,12 +1606,11 @@ function secLocked(d){
 }
 function secDenied(d,c){
   const why=c.role==='Pengunjung'?'kartu tamu tidak berwenang':c.role==='Sidik jari asing'?'sidik jari tidak cocok dengan kartu':'kartu tidak terdaftar';
-  const msg='Akses ditolak di '+d.name+': '+why+'. Ada orang tidak dikenal di area terbatas.';
-  S.secAlert=msg;S.ack=false;clearTimeout(SEC.alT);SEC.alT=setTimeout(()=>{S.secAlert=null;refresh();},30000);
-  d.busy=false;refresh();
+  accessLog('deny',c.name||'Orang tidak dikenal',d.name,'DITOLAK ('+why+')');
+  d.busy=false;secRaise('Akses ditolak di '+d.name+': '+why+'. Ada orang tidak dikenal di area terbatas.',30000);
 }
-function secCard(rid,ck){
-  const r=SEC.readers[rid];if(!r)return;const d=SEC.doors[r.door],isFp=ck.slice(0,3)==='fp-';
+function secCard(rid,ck,opt){
+  opt=opt||{};const r=SEC.readers[rid];if(!r)return;const d=SEC.doors[r.door],isFp=ck.slice(0,3)==='fp-';
   if(r.kind==='finger'){
     if(!isFp){showToast('Pemindai ini membaca sidik jari, bukan kartu. Tempelkan kartu ke pembaca kartu di sebelahnya, lalu seret "Jari Teknisi" ke sini.',5500);secHint(['d4c'],2500);return;}
     return secFingerWith(ck);}
@@ -1572,24 +1619,25 @@ function secCard(rid,ck){
   if(d.busy){showToast('Pintu sedang diproses. Tunggu sebentar.',2200);return;}
   if(secLocked(d))return;
   d.busy=true;secReaderState(rid,'scan',800);SND.fx('scan');
-  const ok=c.allow.includes(d.id),now=performance.now();
+  const ok=c.allow.includes(d.id)||(c.rack&&d.id.slice(0,3)==='rk:'),now=performance.now(),hold=opt.hold||4500;
   if(!ok){d.until=now+3000;secAt(800,()=>{secReaderState(rid,'deny',1800);SND.fx('deny');showToast('Kartu ditolak: '+c.role+' tidak punya akses ke '+d.name+'.',5500);secDenied(d,c);});return;}
-  addAlert('INFO','Kartu diterima: '+c.name+' ('+c.role+') di '+d.name+'.');
+  accessLog('ok',c.name+' ('+c.role+')',d.name,'kartu diterima');
   if(d.id==='d4'){
     d.until=now;secAt(800,()=>{secReaderState(rid,'ok',1200);SND.fx('ok');d.fingerUntil=performance.now()+20000;d.busy=false;showToast('Kartu diterima. Faktor kedua: seret "Jari Teknisi" ke pemindai sidik jari (atau ketuk pemindainya) dalam 20 detik.',9000);secHint(['d4f'],20000);});return;}
-  d.until=now+800+4500+1500;
+  d.until=now+800+hold+1500;
   secAt(800,()=>{secReaderState(rid,'ok',1000);SND.fx('ok');SND.fx('door');d.target=1;showToast('Kartu diterima: '+d.name+' terbuka.',3500);});
-  secAt(800+4500,()=>{d.target=0;});
+  secAt(800+hold,()=>{d.target=0;});
 }
-function secFingerWith(key){
+function secFingerWith(key,opt){
+  opt=opt||{};const hold=opt.hold||5000;
   const d=SEC.doors.d4;
   if((d.fingerUntil||0)<performance.now()){showToast('Tempelkan kartu Teknisi ke pembaca kartu dulu. Sidik jari adalah faktor kedua.',5500);secHint(['d4c'],2500);return;}
   if(d.busy)return;if(secLocked(d))return;
   d.busy=true;d.fingerUntil=0;secReaderState('d4f','scan',1100);SND.fx('scan');
   if(key!=='fp-tech'){d.until=performance.now()+3200;secAt(1100,()=>{secReaderState('d4f','deny',1800);SND.fx('deny');showToast('Sidik jari tidak cocok dengan pemilik kartu. Akses ditolak.',5500);secDenied(d,{role:'Sidik jari asing'});});return;}
-  d.until=performance.now()+1100+5000+1500;
-  secAt(1100,()=>{secReaderState('d4f','ok',1000);SND.fx('ok');SND.fx('door');d.target=1;showToast('Kartu dan sidik jari cocok. Pintu server room terbuka.',4000);addAlert('INFO','Akses diterima: Budi S. (Teknisi) di server room dengan kartu dan sidik jari.');});
-  secAt(1100+5000,()=>{d.target=0;});
+  d.until=performance.now()+1100+hold+1500;
+  secAt(1100,()=>{secReaderState('d4f','ok',1000);SND.fx('ok');SND.fx('door');d.target=1;showToast('Kartu dan sidik jari cocok. Pintu server room terbuka.',4000);accessLog('ok','Budi S. (Teknisi)','server room','kartu + sidik jari cocok');});
+  secAt(1100+hold,()=>{d.target=0;});
 }
 function secTap(id){
   if(id.slice(0,2)==='r:'){const r=SEC.readers[id.slice(2)],d=SEC.doors[r.door];
@@ -1627,8 +1675,215 @@ function initCards(){
 }
 function flyZone(n){
   const z=ZONES[n-1];if(!z)return;
-  if(S.view!=='3d')setView('3d');leaveUnder();S.aisle=null;S.camMode='zone';S.zone=n;updateNav();
+  if(S.view!=='3d')setView('3d');leaveUnder();S.aisle=null;S.camMode='zone';S.zone=n;updateNav();showZone(n);
   flyTo(z.cam.p,z.cam.t,1300);
+}
+
+/* ================= TAHAP 3-5: LOG, INFO ZONA, RACK BERKUNCI, SKENARIO, TUR JALAN ================= */
+SEC.walkers=[];
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const ZINFO=[
+  'Perimeter luar. Pagar keliling, palang kendaraan, dan satpam memeriksa identitas serta tujuan sebelum siapa pun mendekati gedung. CCTV merekam seluruh area.',
+  'Gerbang kedua (speed gate) memakai kartu akses. Flap kaca hanya terbuka untuk kartu terdaftar dan hanya satu orang per kartu, jadi menyusup di belakang orang (tailgating) bisa terdeteksi.',
+  'Lobi. Resepsionis mencatat tamu dan memberi kartu tamu sementara yang hanya membuka area umum. Pintu ke ruang transit hanya terbuka untuk kartu teknisi.',
+  'Ruang transit (mantrap). Dua pintu tidak pernah terbuka bersamaan (interlock). Pintu server room butuh dua faktor: kartu (yang Anda punya) dan sidik jari (siapa Anda).',
+  'Ruang server. Rack penting seperti storage memakai pintu berkunci kartu, jadi hanya teknisi berwenang yang bisa menyentuh perangkat. Setiap akses tercatat di log.'
+];
+function zoneAt(x){return x<-45?1:x<-33?2:x<-19.6?3:x<-15.2?4:5;}
+function showZone(n){
+  const el=$('#zinfo');if(!el)return;S.zoneInfo=n;
+  el.querySelectorAll('.zd i').forEach((d,i)=>{d.className=i<n-1?'done':i===n-1?'on':'';});
+  el.querySelector('h4').textContent=ZONES[n-1].txt;el.querySelector('p').textContent=ZINFO[n-1];
+  el.style.display='block';$('#app').classList.add('hasz');
+}
+function hideZone(){const el=$('#zinfo');if(el)el.style.display='none';S.zoneInfo=null;const a=$('#app');if(a)a.classList.remove('hasz');}
+
+/* ---- log akses ---- */
+function accessLog(kind,who,where,res){
+  const box=$('#alog');if(!box)return;const n=box.querySelector('.none');if(n)n.remove();
+  const d=document.createElement('div');d.className='al '+(kind==='ok'?'INFO':kind==='warn'?'WARN':'CRIT');
+  const sm=document.createElement('small');sm.textContent=new Date().toLocaleTimeString('id-ID')+'  '+where;
+  d.append(sm,document.createTextNode(who+': '+res));box.prepend(d);while(box.children.length>30)box.lastChild.remove();
+}
+function secRaise(msg,ms){S.secAlert=msg;S.ack=false;clearTimeout(SEC.alT);SEC.alT=setTimeout(()=>{S.secAlert=null;refresh();},ms||30000);refresh();}
+function secRestore(quiet){
+  SEC.q.length=0;SEC.tok++;clearTimeout(SEC.holdT);clearTimeout(SEC.alT);S.secAlert=null;
+  for(const id in SEC.doors){const d=SEC.doors[id];if(d.anim){d.target=0;d.busy=false;d.until=0;d.fingerUntil=0;}}
+  SEC.walkers.forEach(w=>{if(w.g.parent)w.g.parent.remove(w.g);});SEC.walkers.length=0;
+  for(const id in SEC.readers)SEC.readers[id].state='idle';
+  if(!quiet)accessLog('ok','Sistem','keamanan','semua pintu ditutup dan alarm dibersihkan');
+  refresh();
+}
+
+/* ---- rack storage berkunci kartu ---- */
+function buildRackLocks(){
+  const gm=new THREE.MeshStandardMaterial({color:'#9ec3ff',transparent:true,opacity:.13,roughness:.1,metalness:.3,depthWrite:false,side:THREE.DoubleSide});
+  const lineM=new THREE.LineBasicMaterial({color:'#7c8a9c'}),dark=new THREE.MeshBasicMaterial({color:'#1a1f26'});
+  const icon=mkTex(96,128,(g,W2,H2)=>{g.fillStyle='#10151b';g.fillRect(0,0,W2,H2);g.strokeStyle='#78a9ff';g.fillStyle='#78a9ff';g.lineWidth=4;g.lineCap='round';g.strokeRect(24,34,48,32);g.fillRect(30,42,12,8);for(let i=1;i<=3;i++){g.beginPath();g.arc(48,82,8*i,Math.PI*1.2,Math.PI*1.8);g.stroke();}});
+  racks.filter(r=>r.store).forEach(r=>{
+    const piv=new THREE.Group();piv.position.set(-r.w/2,0,r.d/2+.03);r.group.add(piv);
+    const dg=new THREE.Mesh(new THREE.BoxGeometry(r.w,r.h,.02),gm);dg.position.set(r.w/2,r.h/2,0);piv.add(dg);
+    dg.add(new THREE.LineSegments(new THREE.EdgesGeometry(dg.geometry),lineM));
+    const rg=new THREE.Group();rg.position.set(r.w-.08,1.15,.025);piv.add(rg);
+    const body=new THREE.Mesh(new THREE.BoxGeometry(.11,.18,.04),dark);rg.add(body);
+    const ic=new THREE.Mesh(new THREE.PlaneGeometry(.085,.113),new THREE.MeshBasicMaterial({map:icon}));ic.position.set(0,-.01,.021);rg.add(ic);
+    const led=new THREE.Mesh(new THREE.BoxGeometry(.08,.02,.01),new THREE.MeshBasicMaterial({color:'#4589ff'}));led.position.set(0,.075,.022);rg.add(led);
+    const hit=new THREE.Mesh(new THREE.BoxGeometry(.5,.5,.5),new THREE.MeshBasicMaterial({visible:false}));hit.position.set(0,0,.15);hit.userData={sec:'r:rkr:'+r.id};rg.add(hit);SEC.picks.push(hit);pickables.push(hit);
+    const lamp=new THREE.Mesh(new THREE.BoxGeometry(.05,.05,.02),new THREE.MeshBasicMaterial({color:'#a8323a'}));lamp.position.set(.08,r.h-.1,.02);piv.add(lamp);
+    const id='rk:'+r.id,rid='rkr:'+r.id;
+    SEC.readers[rid]={id:rid,kind:'card',led,door:id,state:'idle',until:0,hint:0};
+    SEC.doors[id]={id,name:'rack '+r.short,k:0,target:0,sp:1/.9,busy:false,until:0,lamp,readers:[rid],rack:r,
+      anim:k=>{piv.rotation.y=-1.75*k;},msg:'Rack '+r.short+': pintu rack terkunci pembaca kartu. Hanya teknisi berwenang yang bisa membukanya.'};
+  });
+}
+
+/* ---- animasi kartu terbang (untuk tur dan skenario) ---- */
+function flyCard(key,rid,ms){
+  ms=ms||700;
+  return new Promise(res=>{
+    const r=SEC.readers[rid];if(!r||!renderer){res();return;}
+    const rc=renderer.domElement.getBoundingClientRect(),v=new THREE.Vector3();r.led.getWorldPosition(v);v.project(camera);
+    let ex=rc.left+rc.width/2,ey=rc.top+rc.height*.55;if(v.z<1&&v.z>-1){ex=rc.left+(v.x*.5+.5)*rc.width;ey=rc.top+(-v.y*.5+.5)*rc.height;}
+    const src=document.querySelector('#cards [data-card="'+key+'"]');if(!src){res();return;}
+    const sr=src.getBoundingClientRect(),ok=sr.width>0;
+    const w=ok?sr.width:(key.slice(0,3)==='fp-'?84:118),h=ok?sr.height:60;
+    const sx=ok?sr.left+sr.width/2:rc.left+rc.width/2,sy=ok?sr.top+sr.height/2:rc.bottom-70;
+    const g=src.cloneNode(true);g.classList.add('ghost');
+    g.style.cssText='width:'+w+'px;height:'+h+'px;left:'+(sx-w/2)+'px;top:'+(sy-h/2)+'px;transition:left '+ms+'ms ease,top '+ms+'ms ease,transform '+ms+'ms ease,opacity .25s';
+    document.body.appendChild(g);void g.offsetWidth;
+    g.style.left=(ex-w/2)+'px';g.style.top=(ey-h/2)+'px';g.style.transform='rotate(0deg) scale(.5)';
+    setTimeout(()=>{g.style.opacity='0';setTimeout(()=>g.remove(),260);res();},ms+80);
+  });
+}
+
+/* ---- skenario keamanan ---- */
+SEC.tok=0;
+async function scnPrep(n){if(isCompact())setPanel('L',false);W.active&&walkStop();SEC.q.length=0;const tk=++SEC.tok;flyZone(n);await sleep(1500);return tk===SEC.tok;}
+async function scnUnk(){const tk=SEC.tok+1;if(!await scnPrep(2))return;await flyCard('unk','g2r');if(tk!==SEC.tok)return;secCard('g2r','unk');}
+async function scnTamu(){const tk=SEC.tok+1;if(!await scnPrep(3))return;await flyCard('tamu','d3r');if(tk!==SEC.tok)return;secCard('d3r','tamu');}
+async function scnHold(){
+  if(!await scnPrep(3))return;const d=SEC.doors.d3;if(d.busy||d.k>0)return;
+  d.busy=true;d.until=1e15;d.target=1;SND.fx('door');
+  accessLog('warn','Seseorang','ruang transit','pintu terbuka dan tidak menutup');
+  showToast('Pintu ruang transit dibiarkan terbuka. Tunggu sekitar 9 detik: sistem akan memberi alarm.',6000);
+  clearTimeout(SEC.holdT);SEC.holdT=setTimeout(()=>{if(SEC.doors.d3.target===1){accessLog('deny','Sistem','ruang transit','pintu terbuka terlalu lama');secRaise('Pintu ruang transit terbuka terlalu lama (lebih dari 9 detik). Periksa area.',60000);}},9000);
+}
+async function scnForce(){
+  if(!await scnPrep(4))return;const d=SEC.doors.d4;if(d.busy||d.k>0)return;
+  d.busy=true;d.until=1e15;d.target=1;SND.fx('door');
+  accessLog('deny','Tidak diketahui','server room','pintu dipaksa terbuka tanpa kartu dan sidik jari');
+  secRaise('Pintu server room dipaksa terbuka tanpa kartu dan sidik jari.',60000);
+}
+async function scnRack(){
+  const r=racks.find(x=>x.aisle===2&&x.store)||racks.find(x=>x.store);if(!r)return;
+  if(isCompact())setPanel('L',false);W.active&&walkStop();flyTo([0+(r.side?.9:-.9),1.55,r.z+1.9],[r.x,1.3,r.z],1300);S.camMode='zone';S.zone=5;updateNav();showZone(5);
+  const tk=++SEC.tok;await sleep(1500);if(tk!==SEC.tok)return;const d=SEC.doors['rk:'+r.id];if(d.busy||d.k>0)return;
+  d.busy=true;d.until=1e15;d.target=1;SND.fx('door');
+  accessLog('deny','Tidak diketahui',d.name,'pintu rack dibuka tanpa kartu');
+  secRaise('Pintu '+d.name+' dibuka tanpa kartu akses.',60000);
+}
+async function scnTail(){
+  const tk=SEC.tok+1;if(!await scnPrep(2))return;const d=SEC.doors.g2;if(d.busy||d.k>0)return;
+  await flyCard('tech','g2r');if(tk!==SEC.tok)return;secCard('g2r','tech',{hold:14000});
+  await sleep(850);if(tk!==SEC.tok)return;
+  const mk=(x,col,onX)=>{const g=SEC.person(x,3.0,Math.PI/2,col);const w={g,v:1.5,onX};SEC.walkers.push(w);return w;};
+  mk(-41,'#2f6b45');
+  mk(-42.8,'#7a3a3a',{x:-37.2,fn:w=>{
+    if(SEC.doors.g2.k>.05){w.stop=true;SEC.doors.g2.target=0;SND.fx('deny');
+      accessLog('deny','Orang kedua','gerbang 2','tailgating: dua orang dengan satu kartu');
+      secRaise('Tailgating di gerbang 2: dua orang masuk dengan satu kartu. Gerbang dikunci.',45000);}}});
+}
+
+/* ---- tur jalan kaki: masuk sebagai teknisi ---- */
+const W={active:false,n:0,pos:null,yaw:0,yawT:0,phase:0,lastStep:0,goal:null,zone:0};
+function surf(x){return x<-31?'out':x<-15.2?'tile':'raised';}
+function walkUpdate(dt){
+  if(!W.active)return;const p=W.pos;let moved=0,stride=.78;
+  if(W.goal){const g=W.goal,dx=g.x-p.x,dz=g.z-p.z,d=Math.hypot(dx,dz);
+    if(d<.03){const r=g.res;W.goal=null;r();}
+    else{const st=Math.min(d,g.spd*(W.mul||1)*dt);p.x+=dx/d*st;p.z+=dz/d*st;moved=st;W.yawT=Math.atan2(dz,dx);stride=.78*Math.max(1,g.spd/1.7);}}
+  let dy=W.yawT-W.yaw;while(dy>Math.PI)dy-=2*Math.PI;while(dy<-Math.PI)dy+=2*Math.PI;W.yaw+=dy*Math.min(1,dt*3.2);
+  W.phase+=moved/stride;
+  const sn=Math.floor(W.phase);if(sn!==W.lastStep){W.lastStep=sn;if(moved>0)SND.fx('step-'+surf(p.x));}
+  const bob=moved>0?Math.sin(W.phase*Math.PI*2)*.032:Math.sin(performance.now()/1500)*.004,sway=moved>0?Math.sin(W.phase*Math.PI)*.022:0;
+  const fx=Math.cos(W.yaw),fz=Math.sin(W.yaw);
+  camera.position.set(p.x-fz*sway,1.62+Math.abs(bob),p.z+fx*sway);
+  camera.lookAt(p.x+fx*5,1.5+bob*.4,p.z+fz*5);
+  const z=zoneAt(p.x);if(z!==W.zone){W.zone=z;showZone(z);}
+}
+function walkStop(){
+  if(!W.active)return;W.n++;W.active=false;W.goal=null;
+  $('#app').classList.remove('walking');if(controls)controls.enabled=true;
+  const fx=Math.cos(W.yaw),fz=Math.sin(W.yaw);controls.target.set(W.pos.x+fx*3,1.4,W.pos.z+fz*3);
+  S.camMode=null;S.zone=null;hideZone();hideToast();updateNav();
+  flyPreset('over');
+}
+async function walkStart(){
+  if(W.active||!THREE||!renderer)return;
+  if(S.view!=='3d')setView('3d');
+  if(S.tour>=0)endTour();
+  leaveUnder();tw.t=null;secRestore(true);select(null);
+  if(isCompact())setPanel('L',false);
+  const my=++W.n;
+  W.active=true;W.pos=new THREE.Vector3(-80,0,3);W.yaw=W.yawT=0;W.phase=0;W.lastStep=0;W.zone=0;W.goal=null;
+  S.camMode='walk';S.aisle=null;controls.enabled=false;hideToast();$('#app').classList.add('walking');SND.wake();
+  const chk=()=>{if(W.n!==my)throw new Error('stop');};
+  const wsleep=async ms=>{const t0=performance.now();while(performance.now()-t0<ms){chk();await sleep(50);}};
+  const wwait=async(fn,to)=>{const t0=performance.now();while(!fn()){chk();if(performance.now()-t0>(to||15000))return false;await sleep(60);}return true;};
+  const go=(x,z,spd)=>new Promise(res=>{W.goal={x,z,spd:spd||1.7,res};});
+  const face=(x,z)=>{W.yawT=Math.atan2(z-W.pos.z,x-W.pos.x);};
+  const say=(head,txt)=>{$('#wTxt').innerHTML='<b>'+head+'</b>'+txt;};
+  const D=SEC.doors;
+  try{
+    say('Zona 1  Gerbang dan pos satpam','Anda Budi S., teknisi yang dijadwalkan. Perjalanan dimulai dari luar kompleks.');
+    await go(-76.2,3,2.3);chk();
+    say('Zona 1  Gerbang dan pos satpam','Satpam memeriksa identitas dan surat tugas, lalu mengangkat palang.');
+    await wsleep(700);secPass('g1');await wwait(()=>D.g1.k>.92);
+    await go(-60,3,2.5);await go(-40.4,3,2.5);chk();
+    say('Zona 2  Gerbang 2','Tempelkan kartu akses ke pembaca. Hanya satu orang per kartu.');
+    face(-36.8,2.55);await wsleep(600);
+    await flyCard('tech','g2r');secCard('g2r','tech',{hold:7500});await wwait(()=>D.g2.k>.92);
+    await go(-33.2,3);chk();
+    say('Zona 2  Pintu lobi','Pintu lobi otomatis karena resepsionis berjaga di dalam.');
+    secPass('d1');await wwait(()=>D.d1.k>.92);
+    await go(-27,3);chk();
+    say('Zona 3  Lobi','Resepsionis mencatat tamu. Anda teknisi terdaftar, jadi langsung ke pintu ruang transit.');
+    await wsleep(1800);await go(-21.7,3,1.5);chk();
+    face(-19.7,4.1);await wsleep(600);
+    await flyCard('tech','d3r');secCard('d3r','tech',{hold:7500});await wwait(()=>D.d3.k>.92);
+    await go(-17.4,3);chk();
+    say('Zona 4  Ruang transit','Pintu luar harus menutup dulu (interlock). Lalu kartu dan sidik jari untuk pintu server room.');
+    face(-15.3,4.2);await wwait(()=>D.d3.k===0&&!D.d3.busy,16000);await wsleep(500);
+    await flyCard('tech','d4c');secCard('d4c','tech');
+    await wwait(()=>(D.d4.fingerUntil||0)>performance.now(),5000);await wsleep(500);
+    await flyCard('fp-tech','d4f');secFingerWith('fp-tech',{hold:8000});await wwait(()=>D.d4.k>.92);
+    await go(-13.5,3);chk();
+    say('Zona 5  Ruang server','Anda masuk. Rack storage punya pintu berkunci kartu sendiri.');
+    const tr=racks.find(r=>r.aisle===2&&r.store)||racks.find(r=>r.store);
+    await go(-12.4,3.5,2);await go(0,3.5,2.3);
+    await go(0,tr.z+1.1,1.6);chk();
+    face(tr.x,tr.z);await wsleep(700);
+    say('Zona 5  Rack berkunci kartu','Tempelkan kartu ke pembaca di pintu rack '+tr.short+'.');
+    await flyCard('tech','rkr:'+tr.id);secCard('rkr:'+tr.id,'tech',{hold:6500});await wwait(()=>D['rk:'+tr.id].k>.92);
+    say('Selesai','Setiap langkah tadi tercatat di Log akses. Tur akan menutup sebentar lagi.');
+    await wsleep(3500);
+  }catch(e){if(W.n!==my)return;}
+  if(W.n===my)walkStop();
+}
+$('#wStop').onclick=walkStop;
+addEventListener('keydown',e=>{if(e.key==='Escape'&&W.active)walkStop();});
+
+/* ---- tombol ---- */
+{
+  const closeL=()=>{if(isCompact())setPanel('L',false);};
+  $('#btnWalk').onclick=()=>{closeL();walkStart();};
+  $('#kUnk').onclick=()=>{closeL();scnUnk();};$('#kTamu').onclick=()=>{closeL();scnTamu();};
+  $('#kTail').onclick=()=>{closeL();scnTail();};$('#kHold').onclick=()=>{closeL();scnHold();};
+  $('#kForce').onclick=()=>{closeL();scnForce();};$('#kRack').onclick=()=>{closeL();scnRack();};
+  $('#kRst').onclick=()=>{secRestore(false);};
+  $('#clrLog').onclick=()=>{$('#alog').innerHTML='<div class="none">Belum ada aktivitas.</div>';};
+  $('#zinfo .x').onclick=hideZone;
+  $('#zinfo h4').onclick=()=>$('#zinfo').classList.toggle('open');
 }
 
 /* ================= NAV ================= */
@@ -1639,9 +1894,11 @@ function buildNav(){
   <div class="fp c-unk" data-card="fp-unk" title="Sidik jari orang asing (tidak cocok)"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M14 20a10 10 0 0 1 20 0v6"/><path d="M19 38c-2-4-2-8-2-12a7 7 0 0 1 14 0c0 5 1 9 3 12"/><path d="M24 22v8c0 4 1 7 3 10"/><path d="M10 28c0 4 1 7 3 10"/></svg><em class="tl">Jari asing</em><em class="ts">Asing</em></div></div><div id="navCap" aria-live="polite"></div><div class="bar">
   <div class="grp" role="group" aria-label="Pandangan kamera"><button data-p="over"><span class="tl">Seluruh ruangan</span><span class="ts">Semua</span></button><button data-p="top"><span class="tl">Dari atas</span><span class="ts">Atas</span></button><button data-p="under" title="Lihat jalur daya di bawah lantai"><span class="tl">Bawah lantai</span><span class="ts">Bawah</span></button><button data-p="site" title="Lihat gerbang, lobi, dan ruang transit di luar server room"><span class="tl">Area luar</span><span class="ts">Luar</span></button></div>
   <button class="flip" data-flip="1" title="Lihat lorong dari ujung sebaliknya"><span class="tl">Balik arah</span><span class="ts">Balik</span></button>
+  <button class="flip" data-walk="1" title="Tur jalan kaki dari gerbang sampai rack"><span class="tl">Masuk sebagai teknisi</span><span class="ts">Masuk</span></button>
   <div class="grp" role="group" aria-label="Pilih zona keamanan"><span class="lab">Zona</span>${ZONES.map(z=>`<button data-z="${z.n}" title="${z.txt}" aria-label="${z.txt}">${z.n}</button>`).join('')}</div>
   <div class="grp" role="group" aria-label="Pilih lorong"><span class="lab">Lorong</span><button data-step="-1" aria-label="Lorong sebelumnya">&lsaquo;</button>${AIS.map((a,i)=>`<button data-a="${i}" title="Lorong ${i+1}: ${a.n}" aria-label="Lorong ${i+1}: ${a.n}"><i></i>${i+1}</button>`).join('')}<button data-step="1" aria-label="Lorong berikutnya">&rsaquo;</button></div></div>`;
   n.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.walk){walkStart();return;}
     if(b.dataset.z){const z=+b.dataset.z;if(S.camMode==='zone'&&S.zone===z)resetView();else flyZone(z);return;}
     if(b.dataset.p){const p=b.dataset.p;if(p==='over'||S.camMode===p)resetView();else flyPreset(p);}
     else if(b.dataset.a!==undefined){const a=+b.dataset.a;if(S.camMode==='aisle'&&S.aisle===a)resetView();else{flyAisle(a,1);select('aisle:'+a,null,{quiet:true});}}
@@ -1864,7 +2121,7 @@ setView(THREE?'3d':'san');
 select(null);applySheet();syncPanelUI();updateNav();
 if(COARSE&&THREE){let seen=false;try{seen=!!sessionStorage.getItem('dc-hint');}catch(e){}
   if(!seen){showToast(PORTRAIT_MQ.matches?'Seret: geser. Dua jari: zoom dan putar. Seret kartu ke pembaca untuk membuka pintu.':'Seret: geser. Scroll: zoom. Seret kartu ke pembaca untuk membuka pintu.',8000);try{sessionStorage.setItem('dc-hint','1');}catch(e){}}}
-window.dc={SEC,secPass,flyZone,SND,S,setSheet,isCompact,presetPos,racks,resetView,setPanel,panelOpen,comps,select,flyAisle,flyPreset,setMains,toggleFabric,resetAll,tick,refresh,setView,showTour,get camera(){return camera;},get controls(){return controls;}};
+window.dc={W,walkStart,walkStop,scnUnk,scnTamu,scnHold,scnForce,scnRack,scnTail,secRestore,SEC,secPass,flyZone,SND,S,setSheet,isCompact,presetPos,racks,resetView,setPanel,panelOpen,comps,select,flyAisle,flyPreset,setMains,toggleFabric,resetAll,tick,refresh,setView,showTour,get camera(){return camera;},get controls(){return controls;}};
 </script>
 </body>
 </html>
