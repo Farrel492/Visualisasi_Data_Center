@@ -4,7 +4,7 @@ Visualisasi interaktif 3D sebuah data center besar dengan jaringan penyimpanan I
 
 > Simulasi edukatif. Nama model perangkat hanyalah contoh dan bukan konfigurasi produksi.
 
-**Demo:** tambahkan tautan GitHub Pages kamu di sini.
+**Demo:** https://farrel492.github.io/Visualisasi_Data_Center
 
 ## Fitur
 
